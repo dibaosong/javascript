@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>绘制</title>
+	<link rel="stylesheet" href="css/style.css">
+	<style>
+		.tab{
+			position: fixed;
+			top: 20px;
+			left: 20px;
+			width: 200px;
+			height: 350px;
+			background: #fff;
+		}
+		.tag{
+			height: 35px;
+			background: #000;
+			color: #fff;
+		}
+		.tag li{
+			float: left;
+			padding: 0 7px;
+			line-height: 35px;
+			cursor: pointer;
+		}
+		.tag li.active{
+			background: #fff;
+			color: #000;
+		}
+		.cons{
+			padding: 7px;
+		}
+		.cons input{
+			padding: 2px;
+		}
+		.btn{
+			display: block;
+			width: 160px;
+			padding: 5px;
+			margin: 20px auto;
+			cursor: pointer;
+		}
+		.none{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<div class="tab">
+		<ul class="tag">
+			<li class="active" data-name="y">圆形</li>
+			<li data-name="j">矩形</li>
+			<li data-name="d">多边形</li>
+			<li data-name="s">扇形</li>
+		</ul>
+		<div class="con">
+			<div class="cons">
+				圆心：<input id="yC" type="text" value="116.433322, 39.900255">
+				半径：<input id="yB" type="text" value="5000">
+			</div>
+			<div class="cons none">
+				圆心：<input type="text">
+				半径：<input type="text">
+			</div>
+			<div class="cons none">
+				圆心：<input type="text">
+				半径2：<input type="text">
+			</div>
+			<div class="cons none">
+				圆心：<input type="text">
+				半径：<input type="text">
+			</div>
+		</div>
+		<button id="draw" class="btn">绘制</button>
+	</div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.13&key=eb3515877c2f78914d70d7da633f55be"></script>
+
+	<script>
+		$(function(){
+			var map = new AMap.Map('map');
+			map.setMapStyle("amap://styles/blue");
+
+			$('.tag li').on('click', function(){
+				var index = $(this).index();
+				$(this).addClass('active').siblings().removeClass('active');
+				$('.cons').eq(index).show().siblings().hide();
+			});
+			
+			$('#draw').on('click', function(){
+				var name = $('.tag li.active').attr('data-name');
+				if(name == 'y'){ //圆形
+					var center = $.trim($('#yC').val()).split(','),
+						radius = $.trim($('#yB').val());
+					 var circle = new AMap.Circle({
+				        center: center,
+				        radius: radius, //半径
+				        borderWeight: 3,
+				        strokeColor: "#FF33FF", 
+				        strokeOpacity: 1,
+				        strokeWeight: 6,
+				        strokeOpacity: 0.2,
+				        fillOpacity: 0.4,
+				        strokeStyle: 'dashed',
+				        strokeDasharray: [10, 10], 
+				        // 线样式还支持 'dashed'
+				        fillColor: '#1791fc',
+				        zIndex: 50,
+				    });
+				    circle.setMap(map)
+				    // 缩放地图到合适的视野级别
+				    map.setFitView([ circle ])
+					return;
+				};
+			});
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

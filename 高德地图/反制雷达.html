@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>反制雷达</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script>
+		window.forceWebGL =true;
+	</script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.9&key=eb3515877c2f78914d70d7da633f55be&plugin=Map3D"></script>
+	<script>
+
+		$(function(){
+			 
+			var map = new AMap.Map('map', {
+				viewMode:'3D',
+				buildingAnimation:false,
+		        showIndoorMap:false,
+		        center:[116.33719, 39.942384],
+		        pitch:0,
+		        zoom:17
+			});
+
+			map.plugin(["AMap.Scale"], function() {
+	            var scale = new AMap.Scale({
+	                visible: true
+	            });
+	            map.addControl(scale);
+	        });
+
+			map.setMapStyle('amap://styles/blue');
+
+			var imageLayer = new AMap.ImageLayer({
+		        url: 'imgs/dongwuyuan.jpg',
+		        bounds: new AMap.Bounds(
+		                [116.327911, 39.939229],
+		                [116.342659, 39.946275]
+		        ),
+		        zIndex: 55,
+		        zooms: [15, 18]
+		    });
+
+			map.setLayers([
+		            new AMap.TileLayer(),
+		            imageLayer
+		        ]);
+
+			var mapscale = {3:1000000,4:500000,5:200000, 6:100000,7:100000, 8:50000, 9:20000, 10:10000, 11:5000, 12:2000, 13:1000, 14:500, 15:200,16:200, 17:100, 18:50};
+
+			var data = [
+				{
+					"id": "1",
+					"type": 30,
+					"name": "雷达1",
+					"lon": "116.33719",
+					"lat": "39.942384",
+					"range": 200
+				},
+				{
+					"id": "2",
+					"type": 30,
+					"name": "雷达2",
+					"lon": "116.333893",
+					"lat": "39.940742",
+					"range": 100
+				},
+				{
+					"id": "3",
+					"type": 31,
+					"name": "设备1",
+					"lon": "116.333922",
+					"lat": "39.940716",
+					"range": 500
+				}
+			];
+
+
+			function redrawCirce(id, lon, lat, range){
+				//距离环
+				if(!!obj[id]['juli']){
+					map.remove(obj[id]['juli']);
+				};
+				//如果缩放级别小于16，则不在绘制距离环
+				var level = Number(map.getZoom().toFixed(0));
+				if(level < 16){
+					//return;	
+				};
+				var	num = mapscale[level],
+					mapH = $('#map').height(),
+					p1 = map.containTolnglat(new AMap.Pixel(0, 0)),
+					p2 = map.containTolnglat(new AMap.Pixel(0, mapH / 2)),
+					len = AMap.GeometryUtil.distance(p1, p2);
+				
+				if(len > range){
+					len = range;
+				};
+				console.log(num, len)
+				obj[id]['juli'] = [];
+				for (var i = num; i <= len; i += num) {
+					var circle = new AMap.Circle({
+			            center: new AMap.LngLat(lon, lat), // 圆心位置
+			            radius: i, //半径
+			            strokeColor: "#f08200", //线颜色
+			            strokeOpacity: 1, //线透明度
+			            strokeWeight: 1, //线粗细度
+			            fillColor: "#ee2200", //填充颜色
+			            fillOpacity: 0 //填充透明度
+			        });
+			        circle.setMap(map);
+			        obj[id]['juli'].push(circle);
+
+		            var bounds = circle.getBounds();
+		            var maxx = bounds.northeast.lng;
+		            var maxy = bounds.northeast.lat;
+		            var minx = bounds.southwest.lng;
+		            var miny = bounds.southwest.lat;
+		            var p = [maxx, (maxy + miny) / 2];
+		            var label = (i / 1000) + 'km';
+		            var html = '<span style="color:white">' + label + '</span>';
+			        var marker1 = new AMap.Marker({
+			            map: map,
+			            position: p,
+			            content: html,
+			            offset: new AMap.Pixel(-12, -10),
+			        });
+			        obj[id]['juli'].push(marker1);
+		        };
+			};
+
+			function markerCLick(t){
+				var level = Number(map.getZoom().toFixed(0)),
+					rangeNum = rangeArr[level];
+				console.log(level, rangeNum);
+				var lnglat = new AMap.LngLat(t.lon, t.lat) // lng, lat 替换成传入的坐标 
+				var northEast = lnglat.offset(rangeNum, rangeNum) // 北三公里 
+				var southWest = lnglat.offset(-rangeNum, -rangeNum) // 南3公里
+				var bounds = new AMap.Bounds(
+		        	[southWest.getLng(), southWest.getLat()],
+		        	[northEast.getLng(), northEast.getLat()]
+		        );
+		        var other = '';
+				$.each(data, function(index, item){
+					if(item.id != t.id && bounds.contains(new AMap.LngLat(item.lon, item.lat))){
+						other += '<p><a class="other" href="javascript:;" data-t="'+ JSON.stringify(item).replace(/"/g, "'") +'">'+ item.name +'</a></p>';
+					};
+				});
+		        console.log(other);
+
+
+				var content = '<p>名称：'+ t.name +'</p>';
+				content += other;
+				var infoWindow = new AMap.InfoWindow({
+                    offset: new AMap.Pixel(0, 0),
+                    closeWhenClickMap: true,
+                    content: content,
+                    position: new AMap.LngLat(t.lon, t.lat)
+                });
+				infoWindow.open(map);
+			};
+
+			var obj = {},
+				radar = [];
+
+			var rangeArr = {3:400000,4:250000,5:100000, 6:50000,7:40000, 8:23000, 9:8000, 10:4000, 11:2000, 12:600, 13:300, 14:200, 15:100,16:100, 17:50, 18:25};
+			$.each(data, function(i, t){
+				var imgUrl = '',
+					id = t.id,
+					type = t.type,
+					lon = t.lon,
+					lat = t.lat,
+					range = t.range;
+				obj[id] = {};
+				if(type == 30){
+					imgUrl = 'imgs/ld_online.png';
+					redrawCirce(id, lon, lat, range);
+					radar.push(t);
+				}else{
+					imgUrl = 'imgs/fz_online.png';
+				};
+
+				obj[id]['marker'] = new AMap.Marker({
+		            map: map,
+		            offset: new AMap.Pixel(-10, -10),
+		            icon: new AMap.Icon({
+		                image: imgUrl,
+		                zIndex: 999,
+		                size: new AMap.Size(20, 20),
+		                imageSize: new AMap.Size(20, 20)
+		            }),
+		            position: [lon, lat]
+		        });
+
+				
+
+				obj[id]['marker'].on('click', function(){
+					markerCLick(t);
+				});
+
+				
+		        
+
+
+
+			});
+
+			map.on('zoomend', function(){
+				$.each(radar, function(i, t){
+					var id = t.id,
+						lon = t.lon,
+						lat = t.lat,
+						range = t.range;
+					redrawCirce(id, lon, lat, range);
+				})
+			});
+
+			$('body').on('click', '.other', function(){
+				var t = JSON.parse($(this).attr('data-t').replace(/'/g, '"'));
+				markerCLick(t);
+			});
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>批量标注</title>
+	<link rel="stylesheet" href="css/style.css">
+	<style>
+		#can{opacity: 0.2}
+	</style>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.6&key=eb3515877c2f78914d70d7da633f55be"></script>
+	<canvas id="can" width="100" height="100"></canvas>
+	<script>
+		$(function(){
+			var map = new AMap.Map('map', {
+				center: [111.43, 34.693],
+				zoom: 4
+			});
+			map.setMapStyle('amap://styles/blue');
+
+			var CFG = {
+				    perDeg: 1,
+				};
+				var can = document.getElementById('can');
+				var ctx = can.getContext('2d');
+				var deg = 0;
+				var raf;
+				var width = 100,
+					banW = width / 2;
+				function init (){
+					
+				    ctx.fillStyle = 'rgba(0,0,0,0)';
+				    ctx.arc(banW, banW, banW, 0, 2 * Math.PI);
+				    ctx.fill;
+				    raf = window.requestAnimationFrame(loop);
+
+
+				}
+				function loop (){
+				    deg = (deg + CFG.perDeg);
+				    cover();
+				    //drawPosLine();
+				    drawRadar(deg);
+				    raf = window.requestAnimationFrame(loop);
+				}
+				function cover (){
+				    ctx.save();
+				    ctx.fillStyle = 'rgba(0,0,0,0.03)';
+				    ctx.arc(banW, banW, banW, 0, 2 * Math.PI);
+				    ctx.fill();
+				    ctx.restore();
+				}
+				function drawPosLine (){
+				    ctx.beginPath();
+				    ctx.moveTo(banW, 0);
+				    ctx.lineTo(banW, width);
+				    ctx.closePath();
+				    ctx.stroke();
+				    ctx.beginPath();
+				    ctx.moveTo(0, banW);
+				    ctx.lineTo(width, banW);
+				    ctx.closePath();
+				    ctx.stroke();
+				    ctx.moveTo(banW, banW);
+				    ctx.beginPath();
+				    ctx.arc(banW, banW, banW, 0 * Math.PI, 2 * Math.PI);
+				    ctx.closePath();
+				    ctx.stroke();
+				    ctx.moveTo(banW, banW);
+				    ctx.beginPath();
+				    ctx.arc(banW, banW, 50, 0 * Math.PI, 2 * Math.PI);
+				    ctx.closePath();
+				    ctx.stroke();
+				}
+				function drawRadar(iDeg) {
+				    ctx.fillStyle = '#72d6fc';
+				    ctx.beginPath();
+				    ctx.moveTo(banW, banW);
+				    ctx.arc(banW, banW, banW, ( - 2 * CFG.perDeg + iDeg) / 180 * Math.PI, (0 + iDeg) / 180 * Math.PI);
+				    ctx.closePath();
+				    ctx.fill();
+				}
+				init();
+
+			var marker = new AMap.Marker({
+				map: map,
+				position: [111.43, 34.693],
+				offset: new AMap.Pixel(-banW, -banW), 
+				content: $('#can')[0]
+			})
+			
+			
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

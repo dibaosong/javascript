@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>批量标注</title>
+	<link rel="stylesheet" href="css/style.css">
+	<style>
+		.amap-marker{transform-origin: 10px 10px !important;}
+	</style>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.6&key=eb3515877c2f78914d70d7da633f55be"></script>
+
+	<script>
+		$(function(){
+			var map = new AMap.Map('map', {
+				center: [111.43, 34.693],
+				zoom: 4
+			});
+			map.setMapStyle('amap://styles/blue');
+
+			var mark = [];
+			var num = 0;
+			setInterval(function(){
+				//findRealTimePositions();
+				num+=10;
+				mark[500][0].setAngle(num);
+				console.log(mark[0][0])
+			}, 1000);
+			findRealTimePositions();
+			map.setFitView();
+			map.on('zoomend', function(){
+				findRealTimePositions();
+			});
+			function findRealTimePositions(){
+				$.ajax({
+					//url: 'http://lbs-api.bd-cloud.com.cn/lbs-api/gisVehiclePositions/findRealTimePositions.go?token=Y2NvbXBhc3M6MTUzMTE4NzA5MzE4OA==&minx=2.136809136260502&miny=-6.048409796530821&maxx=-111.81909891524435&maxy=51.0267163234077&teamCodes=ALL&vehicleCodes=&_=1531190542783',
+		        	url: '/data/mark.json',
+		        	type: 'GET'
+		        })
+		        .done(function(res) {
+		        	console.log(map.getAllOverlays())
+		        	var level = map.getZoom();
+		        	$.each(mark, function(i, t){
+		        		map.remove(t);
+		        	});
+		        	$.each(res.result, function(i, t){
+						var lon = t.marsLng,
+	                   		lat = t.marsLat,
+	                   		arr = [lon, lat];
+	                   	mark[i] = [];
+	                   	mark[i][0] = new AMap.Marker({
+				            map: map,
+				            icon: new AMap.Icon({
+				                image: '/imgs/driving.png',
+				                size: new AMap.Size(20, 20),  //图标大小
+				                imageSize: new AMap.Size(20, 20)
+				            }),
+				            position: arr,
+				            //angle: angle,
+				            //autoRotation:true,
+				        });
+				        if(level >= 8){
+				        	var label = '<div style="background: rgba(25,34,56,0.7);border:1px solid #2EBAF7;' +
+                'box-shadow: 0px 0px 2px #000;padding: 2px;border-radius: 3px;color:#fff;">';
+				        	label += '<p>123</p><p>123</p><p>2018-07-23 15:08:31</p></label>';
+					        mark[i][0].setOffset(new AMap.Pixel(-10, -10));
+					        mark[i][1] = new AMap.Marker({
+					            map: map,
+					            draggable: true,
+					            position: arr,
+					            content: label,
+					            offset: new AMap.Pixel(20, -25),
+					        });
+				        };
+				        //console.log(mark[i][0])
+				        
+		        	});
+		        })
+			}
+			
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		html, body{
+			width: 100%;
+			height: 100%;
+		}
+		.box{
+			width: 100%;
+			height: 1200px;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script src="js/d3.js"></script>
+	<script>
+		$(function(){
+			var width = $('.box').width(),
+				height = $('.box').height();
+
+			//绘制svg画布
+			var svg = d3.select('.box').append('svg')
+			.attr({'width': width, 'height': height});
+
+			//添加黑色背景
+			svg.append('rect')
+			.attr({'width': width, 'height': height, 'x': 0, 'y': 0, 'fill': '#000'});
+
+			//绘制水平线
+			svg.append('line')
+			.attr({'x1': 0, 'y1': height / 2, 'x2': width, 'y2': height / 2, 'stroke': '#fff', 'stroke-width': 1});
+
+			//绘制垂直线
+			svg.append('line')
+			.attr({'x1': width / 2, 'y1': 0, 'x2': width / 2, 'y2': height, 'stroke': '#fff', 'stroke-width': 1});
+
+			//绘制圆
+			var circleData = [5, 100, 200, 300, 400, 500, 600];
+			var cx = width / 2,
+				cy = height / 2;
+			var circles = svg.selectAll('circle')
+			.data(circleData)
+			.enter()
+			.append('circle');
+			circles.attr({'cx': cx, 'cy': cy, 'stroke': '#fff', 'stroke-width': 1, 'fill': 'none'})
+			.attr('r', function(d){
+				return d;
+			});
+
+			//绘制扫描风叶
+			var scan = svg.append('g');
+			var fyRx = (cx - 100) / 2, //风叶的水平半径
+				fyRy = 25, //风叶的垂直半径
+				fyC = cx - fyRx; //计算风叶圆心时的数值
+			//风叶
+			var ellipseData = [45, 135, 225, 315];
+			var ellipses = scan.selectAll('ellipse')
+			.data(ellipseData)
+			.enter()
+			.append('ellipse');
+			ellipses.attr({'cx': fyC, 'cy': cy, 'rx': fyRx, 'ry': fyRy, 'stroke': '#449d44', 'stroke-width': 2, 'fill': 'none'})
+			.attr('transform', function(d){
+				return 'rotate('+ d +', '+ cx +', '+ cy +')';
+			});
+			var rotate = 0;
+			(function repeat(){
+				rotate += 10;
+				scan.transition()
+				.ease('easeLinear')
+				.duration(60)
+				.attr('transform-origin', cx +' '+ cy)
+				.attr('transform', 'rotate('+ rotate +')')
+				.each('end', function(){
+					repeat();
+				})
+			})();
+
+			//绘制监测点
+			var dianBox = svg.append('g');
+			var dians;
+			setInterval(function(){
+				var dianData = [];
+				for(var i = 1; i <= 120; i++){
+					var x = Math.floor(Math.random() * (1700 - 600)) + 600 - 1150,
+						y = Math.floor(Math.random() * (1700 - 600)) + 600 - 1150,
+						obj = {
+							"id": i,
+							"name": "监测点" + i,
+							"x": x,
+							"y": y
+						};
+					dianData.push(obj);
+				};
+				if(!!dians){
+					dians.remove();
+				};
+				dians = dianBox.selectAll('circle')
+				.data(dianData)
+				.enter()
+				.append('circle')
+				.attr('cx', function(d){
+					return d.x + cx;
+				})
+				.attr('cy', function(d){
+					return cy - d.y;
+				})
+				.attr({'r': 3, 'fill': 'red'})
+				.style('cursor', 'pointer')
+				.on({
+					'mouseover': function(){
+						d3.select(this).attr('r', 5);
+					},
+					'mouseout': function(){
+						d3.select(this).attr('r', 3);
+					},
+					'click': function(d){
+						alert(d.name)
+					}
+				});
+			},2000);
+			
+			//绘制无人机飞行路径
+			//线生成器
+			var lineFun = d3.svg.line()
+			.x(function(d){
+				return d.x;
+			})
+			.y(function(d){
+				return d.y;
+			})
+			.interpolate("linear");
+
+			var lineBox = svg.append('g'),
+				linePath,
+				uas,
+				pathData = [],
+				x = -530,
+				y = -350;
+			(function fly(){
+				x++;
+				y++
+				var obj = {
+					"x": x + cx,
+					"y": cy - y
+				};
+				pathData.push(obj);
+				if(!!linePath){
+					linePath.remove();
+				};
+				linePath = lineBox.append('path')
+				.attr('d', lineFun(pathData))
+				.attr({'stroke': 'red', 'stroke-width': 1});
+
+				if(!uas){
+					uas = svg.append('image')
+					.attr({'width': 41, 'height': 46, 'xlink:href': 'imgs/uas.png'});
+				};
+				uas.attr({'x': obj.x - 20, 'y': obj.y - 30});
+				if(y <= 350){
+					setTimeout(function(){
+						fly();
+					}, 20);
+				};
+			})();
+				
+
+
+
+
+
+		})
+	</script>
+</body>
+</html>

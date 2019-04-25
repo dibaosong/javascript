@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>覆盖物</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<ul class="toolbar">
+		<li><input class="checkbox" data-type="polygon" type="checkbox">Polygon绘制覆盖物</li>
+	</ul>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.6&key=eb3515877c2f78914d70d7da633f55be"></script>
+
+	<script>
+		$(function(){
+			var map = new AMap.Map('map');
+
+			var marker = [],
+				polygon = [];
+
+			$('.toolbar li').on('click', function(){
+				var checkbox = $(this).find('.checkbox');
+				if(checkbox.prop('checked')){
+					checkbox.prop('checked', false);
+				}else{
+					checkbox.prop('checked', true);
+				}
+				checkbox.trigger('change');
+			});
+			$('.checkbox').on('click', function(e){
+				e.stopPropagation();
+			});
+			//Polygon绘制覆盖物
+			$('.checkbox').on('change', function(){
+				var _this = $(this),
+					check = _this.prop('checked'),
+					types = _this.attr('data-type');
+				if(check){
+					if(types == 'polygon'){
+						//第一次选中时如果没有加载过坐标则发送请求
+						if(!_this.hasClass('off')){
+							_this.addClass('off');
+							$.ajax({
+					        	url: '/data/fugaiwu.json',
+					        	type: 'GET'
+					        })
+					        .done(function(res) {
+					        	$.each(res.data, function(i, t){
+					        		var arr = [];
+					        		$.each(t.pointsMars.split(';'), function(index, item){
+					        			arr.push(item.split(','))
+					        		});
+					        		polygon[i] = new AMap.Polygon({
+										map: map,
+										path: arr,
+							            strokeColor: "#fff", 
+							            strokeOpacity: 0.2, 
+							            strokeWeight: 0,    
+							            fillColor: '#F3DF0C', 
+							            fillOpacity: 0.45
+									});
+									var html = '<span style="color:white">' + t.name + '</span>',
+										center = polygon[i].getBounds().getCenter(); //多边形的中心点
+							        marker[i] = new AMap.Marker({
+							            map: map,
+							            position: center,
+							            content: html,
+							            offset: new AMap.Pixel(-12, -10),
+							        });
+					        	});
+					        	map.setFitView();
+					        	//绽放的级别过小时，则标注先不显示
+					        	var level = map.getZoom();
+						        if(level < 8){
+						        	map.remove(marker);
+						        }
+					        })
+						}else{ //已经请求过，则直接显示出来
+				        	var level = map.getZoom();
+					        if(level >= 8){
+					        	map.add(marker);
+					        }
+							map.add(polygon);
+						}
+					}
+
+
+
+				}else{
+					map.remove(marker);
+					map.remove(polygon);
+				}
+			});
+
+			
+			map.on('zoomstart', function(){
+				map.remove(marker);
+			});
+			map.on('zoomchange', function(){
+				var level = map.getZoom();
+		        if(level < 8){
+		        	map.remove(marker);
+		        }else{
+		        	map.add(marker);
+		        }
+			});
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

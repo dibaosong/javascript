@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>雷达</title>
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div id="map" class="map-box" style="text-align:center;"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+
+	<script>
+		$(function(){
+			 var canvas = document.createElement('canvas');
+		     canvas.width = canvas.height = 400;
+		     var ctx = canvas.getContext('2d');
+			//雷达的中心坐标
+			var centerX=200;
+			var centerY=200;
+			var num = 0;
+			var degree=0;
+			var obj = {
+		        GC:ctx,
+		        timer:'',
+		        bContinue:false,
+		        fun: function(){
+		        	obj.GC.fillStyle = "rgba(0,0,0,0.03)";
+				    obj.GC.fillRect(0,0,400,400);
+				    obj.GC.strokeStyle='#72d6fc';
+				    
+				    var halfW = 400/2;
+				    var halfH = 400/2;
+				    
+				    
+				    obj.GC.lineWidth=1;
+				    for(var k=0;k<5;k++){
+				        obj.GC.beginPath();
+				        obj.GC.arc(halfW,halfH,r1+k,0,Math.PI*2,'#72d6fc',true);
+				        obj.GC.closePath();
+				        obj.GC.stroke();
+				        
+				        obj.GC.beginPath();
+				        if(!bFirst)
+				            obj.GC.arc(halfW,halfH,r2+k,0,Math.PI*2,'#72d6fc',true);
+				        obj.GC.closePath();
+				        obj.GC.stroke();
+				    }
+				    if(r1 > R){
+				        r1=0;
+				    }
+				    if(r2 > R){
+				        r2 = 0;
+				        if(bFirst==true){
+				            bFirst=false;
+				        }
+				    }
+				    r1++,r2++;
+				    
+				   
+				    
+				    degree++;
+		        },
+		        //color:ocolor,
+		        start:function(){
+		            var oThis = this;
+		            if(oThis.timer)
+		            {
+		                oThis.stop();
+		            }
+		            oThis.bContinue = true;
+		            var loop = function()
+		            {
+		                oThis.fun(oThis);
+		                if(oThis.bContinue)
+		                {
+		                    oThis.timer = setTimeout(loop, 5);
+		                }
+		            }
+		            loop();
+		        },
+		        stop:function(){clearTimeout(this.timer);this.bContinue = false;}
+		    };
+		    var R = Math.sqrt(Math.pow(400/2,2)+Math.pow(400/2,2));
+			var r1=0,r2=R/2,bFirst=true;
+			//雷达扫描效果
+			function darwLeiDa(){
+				//绘制扇形
+				//num++;
+				//ctx.clearRect(0,0,400,400);
+				ctx.save();
+				   // 开始一条新路径
+				ctx.beginPath();
+				// 位移到圆心，方便绘制
+				ctx.translate(centerX,centerY);
+				// 移动到圆心
+				ctx.moveTo(0,0);
+				ctx.rotate(Math.PI/180*(0 - 90 - 25));
+				// 绘制圆弧
+				ctx.arc(0, 0,200,0,Math.PI/180*50);
+				// 闭合路径
+				ctx.closePath();
+				ctx.fillStyle="rgba(0,0,0,0.5)";
+				ctx.fill();
+				ctx.restore();
+				ctx.clip();
+				ctx.globalAlpha=0.5;
+				
+				//绘制扩散波纹
+				obj.start();
+				
+			 }
+			 
+			darwLeiDa();
+			 
+			//setInterval(darwLeiDa,8);
+
+		     $('#map').append(canvas);
+
+			
+
+			
+
+			
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>雷达</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script>
+		window.forceWebGL =true;
+	</script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.9&key=eb3515877c2f78914d70d7da633f55be&plugin=Map3D"></script>
+	<script>
+
+		$(function(){
+			 
+			var map = new AMap.Map('map', {
+				viewMode:'3D',
+				buildingAnimation:false,
+		        showIndoorMap:false,
+		        center:[116.470323,39.992598],
+		        pitch:0,
+		        zoom:17
+			});
+			map.setMapStyle('amap://styles/blue');
+
+			 var object3Dlayer = new AMap.Object3DLayer();
+			    map.add(object3Dlayer);
+			    var getOpacity = function(scale){
+			        return 1 - Math.pow(scale,0.5)
+			    }
+			    var getOpacityS = function(scale){
+			        return 0 + Math.pow(scale,1.8)
+			    }
+			    var buildRadar = function(){
+			        radar = new AMap.Object3D.Mesh();
+			        radar.transparent = true
+			        radar.backOrFront = 'front'
+			        var geometry = radar.geometry;
+			        var radius = 200;//米
+			        radius = radius/map.getResolution(map.getCenter(),20);
+			        var unit = 1;
+			        var range = 100;
+			        var count = range/unit;
+			        for(var i=0;i<count;i+=1){
+			            var angle1 = i*unit*Math.PI/180;
+			            var angle2 = (i+1)*unit*Math.PI/180;
+
+			            var p1x = Math.cos(angle1)*radius;
+			            var p1y = Math.sin(angle1)*radius;
+			            var p2x = Math.cos(angle2)*radius;
+			            var p2y = Math.sin(angle2)*radius;
+
+			            geometry.vertices.push(0,0,0)
+			            geometry.vertices.push(p1x,p1y,0)
+			            geometry.vertices.push(p2x,p2y,0)
+
+
+			            var opacityStart = getOpacity(i/count);
+			            var opacityEnd = getOpacity((i+1)/count);
+			            console.log(opacityStart, opacityEnd)
+
+			            // var opacityStart = getOpacityS(i/count);
+			            // var opacityEnd = getOpacityS((i+1)/count);
+			            // console.log(opacityStart, opacityEnd)
+
+
+			            geometry.vertexColors.push(0,1,0.2,opacityStart)
+			            geometry.vertexColors.push(0,1,0.2,opacityStart)
+			            geometry.vertexColors.push(0,1,0.2,opacityEnd)
+			        }
+			        radar.position(map.getCenter())
+			        object3Dlayer.add(radar)
+			    };
+			    buildRadar()
+			    function scan(){
+			        radar.rotateZ(-2)
+			        AMap.Util.requestAnimFrame(scan);
+			    }
+			    scan()
+			
+			
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

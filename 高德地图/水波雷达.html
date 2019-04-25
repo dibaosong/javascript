@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>雷达</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script>
+		window.forceWebGL =true;
+	</script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.9&key=eb3515877c2f78914d70d7da633f55be&plugin=Map3D"></script>
+	<script>
+
+		$(function(){
+			 
+			var map = new AMap.Map('map', {
+				viewMode:'3D',
+				buildingAnimation:false,
+		        showIndoorMap:false,
+		        center:[116.335183,39.941735],
+		        pitch:0,
+		        zoom:15
+			});
+
+			
+
+			map.setMapStyle('amap://styles/blue');
+
+			  /*
+		     * 添加Canvas图层
+		     */
+		     var canvas = document.createElement('canvas');
+		     canvas.width = canvas.height = 200;
+		     var context = canvas.getContext('2d')
+		     context.fillStyle='rgb(0,100,255)';
+		     context.strokeStyle='white';
+		     context.globalAlpha = 1;
+		     context.lineWidth = 2;
+		     var radious = 0;
+		     var draw  = function(argument) {
+		     	context.clearRect(0,0,200,200)
+		     	context.globalAlpha = (context.globalAlpha-0.01+1)%1;
+		     	radious=(radious+1)%100;
+
+		     	context.beginPath();
+				context.arc(100,100,radious,0,2*Math.PI);
+				context.fill();
+				context.stroke();
+				CanvasLayer.reFresh()//2D视图时可以省略
+				AMap.Util.requestAnimFrame(draw);
+		     }
+		     
+
+		     
+		     var lnglat = new AMap.LngLat(116.335183,39.941735) // lng, lat 替换成传入的坐标 
+				var northEast = lnglat.offset(300, 300) // 北三公里 
+				var southWest = lnglat.offset(-300, -300) // 南3公里
+
+		     var CanvasLayer = new AMap.CanvasLayer({
+		        canvas: canvas,
+		        bounds: new AMap.Bounds(
+		        	[southWest.getLng(), southWest.getLat()],
+		        	[northEast.getLng(), northEast.getLat()]
+		        ),
+		        zooms: [3, 18],
+		    });
+
+		    CanvasLayer.setMap(map);
+		    draw();
+			
+			
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>

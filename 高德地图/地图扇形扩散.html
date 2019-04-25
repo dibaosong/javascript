@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>地图扇形扩散</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
+    <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+</head>
+<body>
+	<div id="map" class="map-box"></div>
+	<script src="js/jquery-1.8.3.min.js"></script>
+	<script>
+		window.forceWebGL =true;
+	</script>
+	<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.9&key=eb3515877c2f78914d70d7da633f55be&plugin=Map3D"></script>
+	<script>
+
+		$(function(){
+			 
+			var map = new AMap.Map('map', {
+				viewMode:'3D',
+				buildingAnimation:false,
+		        showIndoorMap:false,
+		        center:[116.335183,39.941735],
+		        pitch:0,
+		        zoom:15
+			});
+
+			
+
+			map.setMapStyle('amap://styles/blue');
+
+			  /*
+		     * 添加Canvas图层
+		     */
+		     var canvas = document.createElement('canvas');
+		     var canvasW = 400;
+		     var halfW = canvasW/2;
+			var halfH = canvasW/2;
+		     canvas.width = canvas.height = canvasW;
+		     canvas.style.background = 'red';
+		     var ctx = canvas.getContext('2d');
+			//雷达的中心坐标
+			var centerX=halfW;
+			var centerY=halfW;
+			var R = Math.sqrt(Math.pow(canvasW/2,2)+Math.pow(canvasW/2,2));
+			var r1=0,r2=R/2,bFirst=true;
+		    
+			//雷达扫描效果
+			function darwLeiDa(){
+				//绘制扇形
+				ctx.clearRect(0,0,canvasW,canvasW);
+				ctx.save();
+				   // 开始一条新路径
+				ctx.beginPath();
+				// 位移到圆心，方便绘制
+				ctx.translate(centerX,centerY);
+				// 移动到圆心
+				ctx.moveTo(0,0);
+				ctx.rotate(Math.PI/180*(0 - 90 - 50));
+				// 绘制圆弧
+				ctx.arc(0, 0,halfW,0,Math.PI/180*100);
+				// 闭合路径
+				ctx.closePath();
+				ctx.fillStyle="rgba(0,0,0,0.5)";
+				ctx.fill();
+				ctx.restore();
+				ctx.clip();
+				setInterval(function(){
+					ctx.clearRect(0,0,canvasW,canvasW);
+					ctx.save();
+				   // 开始一条新路径
+					ctx.beginPath();
+					// 位移到圆心，方便绘制
+					ctx.translate(centerX,centerY);
+					// 移动到圆心
+					ctx.moveTo(0,0);
+					ctx.rotate(Math.PI/180*(0 - 90 - 50));
+					// 绘制圆弧
+					ctx.arc(0, 0,halfW,0,Math.PI/180*100);
+					// 闭合路径
+					ctx.closePath();
+					ctx.fillStyle="rgba(0,0,0,0.5)";
+					ctx.fill();
+					ctx.restore();
+
+				    ctx.strokeStyle='#72d6fc';
+				    
+				    
+				    
+				    ctx.lineWidth=1;
+				    for(var k=0;k<5;k++){
+				        ctx.beginPath();
+				        ctx.arc(halfW,halfH,r1+k,0,Math.PI*2,'#72d6fc',true);
+				        ctx.closePath();
+				        ctx.stroke();
+				        
+				        ctx.beginPath();
+				        if(!bFirst)
+				            ctx.arc(halfW,halfH,r2+k,0,Math.PI*2,'#72d6fc',true);
+				        ctx.closePath();
+				        ctx.stroke();
+				        
+				    }
+				    if(r1 > R){
+				        r1=0;
+				    }
+				    if(r2 > R){
+				        r2 = 0;
+				        if(bFirst==true){
+				            bFirst=false;
+				        }
+				    }
+				    r1++,r2++;
+				    CanvasLayer.reFresh();//2D视图时可以省略
+				}, 3)
+				
+				
+				//绘制扩散波纹
+				//obj.start();
+			 };
+			 
+			
+		     
+			var lnglat = new AMap.LngLat(116.335183,39.941735) // lng, lat 替换成传入的坐标 
+			var northEast = lnglat.offset(3000, 3000) // 北三公里 
+			var southWest = lnglat.offset(-3000, -3000) // 南3公里
+
+		     var CanvasLayer = new AMap.CanvasLayer({
+		        canvas: canvas,
+		        bounds: new AMap.Bounds(
+		        	[southWest.getLng(), southWest.getLat()],
+		        	[northEast.getLng(), northEast.getLat()]
+		        ),
+		        zIndex: 200,
+		        zooms: [3, 18],
+		    });
+		     CanvasLayer.setMap(map);
+            
+		     
+		     darwLeiDa();
+
+
+	        
+	        
+	        
+			
+			
+		})
+	</script>
+</body>
+</html>
