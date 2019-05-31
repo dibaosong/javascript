@@ -1,0 +1,272 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://www.sycalc.com.cn:8082/lib/html5shiv.js"></script>
+<script type="text/javascript" src="http://www.sycalc.com.cn:8082/lib/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" type="text/css" href="http://www.sycalc.com.cn:8082/static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="http://www.sycalc.com.cn:8082/static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="http://www.sycalc.com.cn:8082/static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="http://www.sycalc.com.cn:8082/static/h-ui.admin/css/style.css" />
+<!--[if IE 6]>
+<script type="text/javascript" src="http://www.sycalc.com.cn:8082/lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+<title>分组列表</title>
+
+<style>
+	body{
+		height: 100%;
+	}
+	.page-container{
+		height: calc(100% - 40px);
+	}
+	.group-box{
+		height: calc(100% - 80px);
+		border: 1px #e5e5e5 solid;
+		box-shadow: 0 0 5px #ccc;
+	}
+	.group-left{
+		float: left;
+		width: 170px;
+		height: 100%;
+		background: #f5f5f5;
+		box-shadow: 0 0 2px #ccc inset;
+		overflow-x: hidden;
+		overflow-y: auto; 
+	}
+	.group-left li{
+		height: 70px;
+		line-height: 70px;
+		text-indent: 15px;
+		border-bottom: 1px #f5f5f5 solid;
+		cursor: pointer;
+	}
+	.group-left li.active{
+		width: 100%;
+		border-right: 1px #fff solid;
+		border-bottom: 1px #e5e5e5 solid;
+		background: #fff;
+		cursor: default;
+	}
+	.group-right{
+		float: right;
+		width: calc(100% - 170px);
+		height: 100%;
+	}
+	.group-cons{
+		height: 100%;
+	}
+	.group-con{
+		height: calc(100% - 50px);
+		padding: 0 30px;
+		overflow: auto;
+	}
+	.group-conbox{
+		padding: 20px 0 10px 0;
+	}
+	.group-conbox .btn{
+		margin: 0 15px 15px 0;
+		cursor: default;
+	}
+	.group-conbox i{
+		margin-left: 5px;
+		cursor: pointer;
+	}
+	.group-footer{
+		height: 50px;
+		line-height: 50px;
+		background: #e4e4e4;
+	}
+	.group-project-text{
+		width: 300px;
+	}
+	.group-project-con{
+		width: 350px;
+		max-height: 200px;
+		margin: 20px auto;
+		padding: 5px 20px 20px 20px;
+		border: 1px #e5e5e5 solid;
+		overflow: auto;
+	}
+	.group-project-con .cl{
+		margin-top: 10px;
+	}
+	.group-project-con label{
+		vertical-align: middle;
+	}
+</style>
+
+</head>
+
+<body>
+	<div class="page-container">
+		<button class="btn btn-primary radius" id="createGroupBtn">
+			<i class="Hui-iconfont"></i> 创建分组
+		</button>
+		<div class="group-box mt-20">
+			<ul class="group-left">
+				<li class="active">分组1</li>
+				<li>分组2</li>
+			</ul>
+			<div class="group-right">
+				<div class="group-cons">
+					<div class="group-con">
+						<div class="group-conbox">
+							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
+							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
+							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
+						</div>
+						<button class="btn btn-primary radius">
+							<i class="Hui-iconfont"></i> 添加项目
+						</button>
+					</div>
+					<div class="group-footer text-r">
+						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10">7</span> 合计金额：<span>500</span>（万元）
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 创建分组 -->
+	<div class="modal fade" id="groupModal">
+		<div class="modal-dialog">
+			<div class="modal-content radius">
+				<div class="modal-header">
+					<h3 class="modal-title">创建分组</h3>
+					<a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
+				</div>
+				<div class="modal-body">
+					<form class="form">
+						<div class="row cl">
+							<label class="form-label col-xs-4 text-r"><span class="c-red">*</span>分组名称：</label>
+							<div class="formControls col-xs-6">
+								<input id="groupName" type="text" class="input-text" name="name">
+							</div>
+						</div>
+						<div class="row cl">
+							<label class="form-label col-xs-4 text-r"><span class="c-red">*</span>分组年份：</label>
+							<div class="formControls col-xs-6">
+								<input id="groupYear" type="text" class="input-text" name="year">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" id="groupConfirm">确定</button>
+					<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 添加项目 -->
+	<div class="modal fade in">
+		<div class="modal-dialog">
+			<div class="modal-content radius">
+				<div class="modal-header">
+					<h3 class="modal-title">添加项目</h3>
+					<a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
+				</div>
+				<div class="modal-body">
+					<form class="form">
+						<div class="row cl text-c">
+							<input type="text" class="input-text group-project-text" name="name">
+							<button class="btn btn-primary">
+								<i class="Hui-iconfont"></i> 搜项目
+							</button>
+						</div>
+					</form>
+					<div class="group-project-con" id="projectCheck">
+						<div class="cl">
+							<div class="check-box">
+								<input type="checkbox" id="checkbox-1" name="checkbox2">
+								<label for="checkbox-1">上网</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary">确定</button>
+					<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+	<input type="hidden" id="token" value="98CpjDMLP0GBJ05gUYBomKgRd07sVz5xax9hFYS1">
+
+
+	<!--_footer 作为公共模版分离出去-->
+	<script type="text/javascript" src="http://www.sycalc.com.cn:8082/lib/jquery/1.9.1/jquery.min.js"></script> 
+	<script type="text/javascript" src="http://www.sycalc.com.cn:8082/lib/layer/2.4/layer.js"></script>
+	<script type="text/javascript" src="http://www.sycalc.com.cn:8082/static/h-ui/js/H-ui.min.js"></script> 
+	<script type="text/javascript" src="http://www.sycalc.com.cn:8082/static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+	<!--请在下方写此页面业务相关的脚本-->
+	<script type="text/javascript" src="lib/template/template.js"></script>
+	<script>
+		$(function(){
+			var token = $("#token").val();
+
+			//创建分组
+			$('#createGroupBtn').on('click', function(){
+				$('#groupModal').modal();
+			}).trigger('click');
+			//创建分组-确定
+			$('#groupConfirm').on('click', function(){
+				var groupNameTag = $('#groupName'),
+					groupName = $.trim(groupNameTag.val());
+				if(groupName == ''){
+					groupNameTag.focus();
+					layer.tips('请输入分组名称', '#groupConfirm', {
+		                tips: [1, '#18a689'],
+		                time: 1500
+		            });
+					return;
+				};
+				var groupYearTag = $('#groupYear'),
+					groupYear = $.trim(groupYearTag.val());
+				if(groupYear == ''){
+					groupYearTag.focus();
+					layer.tips('请输入分组年份', '#groupConfirm', {
+		                tips: [1, '#18a689'],
+		                time: 1500
+		            });
+					return;
+				};
+				var data = {
+					"_token": token,
+					"groupName": groupName,
+					"groupYear": groupYear
+				};
+				$.ajax({
+					type: 'POST',
+					url: '',
+					data: data,
+					success: function(data){
+						layer.msg('创建成功!',{icon:1,time:1000});
+					}
+				});
+
+			});
+
+			$('#projectCheck input').iCheck({
+				checkboxClass: 'icheckbox-blue',
+				radioClass: 'iradio-blue',
+				increaseArea: '20%'
+			});
+
+		})
+	</script>
+
+</body>
+</html>
