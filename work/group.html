@@ -47,12 +47,17 @@
 		height: 70px;
 		line-height: 70px;
 		text-indent: 15px;
+		border-top: 1px #f5f5f5 solid;
 		border-bottom: 1px #f5f5f5 solid;
 		cursor: pointer;
+	}
+	.group-left li:first-child{
+		border-top: 0 !important;
 	}
 	.group-left li.active{
 		width: 100%;
 		border-right: 1px #fff solid;
+		border-top: 1px #e5e5e5 solid;
 		border-bottom: 1px #e5e5e5 solid;
 		background: #fff;
 		cursor: default;
@@ -63,6 +68,7 @@
 		height: 100%;
 	}
 	.group-cons{
+		display: none;
 		height: 100%;
 	}
 	.group-con{
@@ -91,6 +97,7 @@
 	}
 	.group-project-con{
 		width: 350px;
+		min-height: 120px;
 		max-height: 200px;
 		margin: 20px auto;
 		padding: 5px 20px 20px 20px;
@@ -113,24 +120,33 @@
 			<i class="Hui-iconfont"></i> 创建分组
 		</button>
 		<div class="group-box mt-20">
-			<ul class="group-left">
-				<li class="active">分组1</li>
-				<li>分组2</li>
+			<ul class="group-left" id="groupList">
+				<li data-year="2019" data-id="1">分组1</li>
+				<li data-year="2019" data-id="2">分组2</li>
 			</ul>
-			<div class="group-right">
+			<div class="group-right" id="groupShow">
 				<div class="group-cons">
 					<div class="group-con">
 						<div class="group-conbox">
-							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
-							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
-							<button class="btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont">&#xe6a6</i></button>
+							<button data-id="1" data-name="子项目1" data-money="100" class="js-project btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont js-project-delete">&#xe6a6</i></button>
 						</div>
-						<button class="btn btn-primary radius">
+						<button class="btn btn-primary radius js-add-project">
 							<i class="Hui-iconfont"></i> 添加项目
 						</button>
 					</div>
 					<div class="group-footer text-r">
-						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10">7</span> 合计金额：<span>500</span>（万元）
+						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10 js-count">1</span> 合计金额：<span class="js-money">100</span>（万元）
+					</div>
+				</div>
+				<div class="group-cons">
+					<div class="group-con">
+						<div class="group-conbox"></div>
+						<button class="btn btn-primary radius js-add-project">
+							<i class="Hui-iconfont"></i> 添加项目
+						</button>
+					</div>
+					<div class="group-footer text-r">
+						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10 js-count">0</span> 合计金额：<span class="js-money">0</span>（万元）
 					</div>
 				</div>
 			</div>
@@ -168,7 +184,7 @@
 		</div>
 	</div>
 	<!-- 添加项目 -->
-	<div class="modal fade in">
+	<div class="modal fade" id="projectModal">
 		<div class="modal-dialog">
 			<div class="modal-content radius">
 				<div class="modal-header">
@@ -176,25 +192,16 @@
 					<a class="close" data-dismiss="modal" aria-hidden="true" href="javascript:void();">×</a>
 				</div>
 				<div class="modal-body">
-					<form class="form">
-						<div class="row cl text-c">
-							<input type="text" class="input-text group-project-text" name="name">
-							<button class="btn btn-primary">
-								<i class="Hui-iconfont"></i> 搜项目
-							</button>
-						</div>
-					</form>
-					<div class="group-project-con" id="projectCheck">
-						<div class="cl">
-							<div class="check-box">
-								<input type="checkbox" id="checkbox-1" name="checkbox2">
-								<label for="checkbox-1">上网</label>
-							</div>
-						</div>
+					<div class="row cl text-c">
+						<input id="projectInput" type="text" class="input-text group-project-text" name="name">
+						<button id="projectSearch" class="btn btn-primary" type="button">
+							<i class="Hui-iconfont"></i> 搜项目
+						</button>
 					</div>
+					<div class="group-project-con" id="projectCheck"></div>
 				</div>
 				<div class="modal-footer">
-					<button class="btn btn-primary">确定</button>
+					<button class="btn btn-primary" id="projectConfirm">确定</button>
 					<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
 				</div>
 			</div>
@@ -212,15 +219,70 @@
 	<script type="text/javascript" src="http://www.sycalc.com.cn:8082/static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
 
 	<!--请在下方写此页面业务相关的脚本-->
+	
+	<!-- 创建分组右侧模板 -->
+	<script type="text/html" id="groupTpl">
+		<div class="group-cons">
+			<div class="group-con">
+				<div class="group-conbox"></div>
+				<button class="btn btn-primary radius js-add-project">
+					<i class="Hui-iconfont"></i> 添加项目
+				</button>
+			</div>
+			<div class="group-footer text-r">
+				分组年份：<span class="mr-10">{{data.groupYear}}</span> 计项目数量：<span class="mr-10 js-count">0</span> 合计金额：<span class="js-money">0</span>（万元）
+			</div>
+		</div>
+	</script>
+	<!-- 搜索出的项目列表模板 -->
+	<script type="text/html" id="projectListTpl">
+		{{each data item index}}
+		<div class="cl">
+			<div class="check-box">
+				<input data-id="{{item.id}}" data-money="{{item.money}}" data-name="{{item.name}}" type="checkbox" id="checkbox-{{index}}">
+				<label for="checkbox-{{index}}">{{item.name}}</label>
+			</div>
+		</div>
+		{{/each}}
+	</script>
+	<!-- 添加的子项目模板 -->
+	<script type="text/html" id="projectConTpl">
+		{{each data item index}}
+		<button data-id="{{item.id}}" data-name="{{item.name}}" data-money="{{item.money}}" class="js-project btn btn-primary-outline radius" type="button">{{item.name}} <i class="Hui-iconfont js-project-delete">&#xe6a6</i></button>
+		{{/each}}
+	</script>
+	
+	
 	<script type="text/javascript" src="lib/template/template.js"></script>
 	<script>
 		$(function(){
 			var token = $("#token").val();
 
+			//统计当前分组的项目数量与金额
+			function getCountMoney(){
+				var box = $('.group-cons:visible'),
+					projects = box.find('.js-project'),
+					count = projects.length,
+					money = 0;
+				projects.each(function(){
+					money += Number($(this).attr('data-money'));
+				});
+				box.find('.js-count').text(count);
+				box.find('.js-money').text(money);
+			};
+
+			//分组切换
+			$('#groupList').on('click', 'li', function(){
+				var index = $(this).index();
+				$(this).addClass('active').siblings().removeClass('active');
+				$('.group-cons').eq(index).show().siblings().hide();
+			});
+			$('#groupList li:first').trigger('click');
+
 			//创建分组
 			$('#createGroupBtn').on('click', function(){
 				$('#groupModal').modal();
-			}).trigger('click');
+			});
 			//创建分组-确定
 			$('#groupConfirm').on('click', function(){
 				var groupNameTag = $('#groupName'),
@@ -249,20 +311,151 @@
 					"groupYear": groupYear
 				};
 				$.ajax({
-					type: 'POST',
-					url: '',
+					type: 'get',
+					url: '/data/add.json',
 					data: data,
 					success: function(data){
-						layer.msg('创建成功!',{icon:1,time:1000});
+						if(data.ok){
+							layer.msg('创建成功!',{icon:1,time:1000});
+							var liHtml = '<li data-year="'+ groupYear +'" data-id="'+ data.id +'">'+ groupName +'</li>';
+							$('#groupList').append(liHtml);
+							var html = template('groupTpl', {
+				    			data: {"groupYear": groupYear}
+				    		});
+							$('#groupShow').append(html);
+							$('#groupList li:last').trigger('click');
+							$('#groupModal').modal('hide');
+						}
 					}
 				});
-
 			});
-
-			$('#projectCheck input').iCheck({
-				checkboxClass: 'icheckbox-blue',
-				radioClass: 'iradio-blue',
-				increaseArea: '20%'
+			
+			var projectArr = [];
+			//添加项目
+			$('body').on('click', '.js-add-project', function(){
+				$('#projectModal').modal();
+				$('#projectInput').val('');
+				$('#projectCheck').html('');
+				projectArr = [];
+				$(this).prev().find('.js-project').each(function(){
+					var id = $(this).attr('data-id');
+					projectArr.push(id);
+				});
+			});
+			//删除子项目
+			$('body').on('click', '.js-project-delete', function(){
+				var _this = $(this).parent();
+				parent.layer.confirm('确定要删除吗？', {
+		    
+				}, function(){
+					var id = _this.attr('data-id'),
+						data = {
+							"id": id
+						};
+					$.ajax({
+						type: 'get',
+						url: '/data/project.json',
+						data: data,
+						success: function(data){
+							if(data.ok){
+								_this.remove();
+								layer.msg('删除成功!',{icon:1,time:1000});
+							}
+						}
+					});
+				}, function(){
+				    
+				});
+			});
+			//搜索项目
+			$('#projectSearch').on('click', function(){
+				var value = $.trim($('#projectInput').val());
+				if(value == ''){
+					$('#projectInput').focus();
+					return;
+				};
+				var year = $('#groupList li.active').attr('data-year'),
+					data = {
+						"keyword": value,
+						"groupYear": year
+					};
+				$.ajax({
+					type: 'get',
+					url: '/data/project.json',
+					data: data,
+					success: function(data){
+						if(data.ok){
+							var html = template('projectListTpl', {
+				    			data: data.list
+				    		});
+							$('#projectCheck').html(html);
+							$('#projectCheck input').iCheck({
+								checkboxClass: 'icheckbox-blue',
+								radioClass: 'iradio-blue',
+								increaseArea: '20%'
+							});
+							projectArr.forEach(function(item){
+								$('#projectCheck input[data-id="'+ item +'"]').iCheck('check');
+							});
+						}
+					}
+				});
+			});
+			//项目输入框
+			$('#projectInput').on('keyup', function(e){
+				if(e.which == 13){
+					$('#projectSearch').trigger('click');
+				};
+			});
+			//项目确定
+			$('#projectConfirm').on('click', function(){
+				var check = $('#projectCheck input:checked');
+				if(check.length == 0){
+					layer.tips('请选择项目', '#projectConfirm', {
+		                tips: [1, '#18a689'],
+		                time: 1500
+		            });
+					return;
+				};
+				var ids = [],
+					arr = [];
+				check.each(function(){
+					var _this = $(this),
+						id = _this.attr('data-id'),
+						name = _this.attr('data-name'),
+						money = _this.attr('data-money');
+					if(projectArr.indexOf(id) == -1){
+						ids.push(id);
+						var obj = {
+							"id": id,
+							"name": name,
+							"money": money
+						};
+						arr.push(obj);
+					};
+				});
+				if(ids.length == 0){
+					$('#projectModal').modal('hide');
+					return;
+				};
+				var data = {
+					"ids": ids.join(',')
+				};
+				$.ajax({
+					type: 'get',
+					url: '/data/addProject.json',
+					data: data,
+					success: function(data){
+						if(data.ok){
+							$('#projectModal').modal('hide');
+							var html = template('projectConTpl', {
+				    			data: arr
+				    		});
+							$('.group-conbox:visible').append(html);
+							getCountMoney();
+						}
+					}
+				});
 			});
 
 		})
