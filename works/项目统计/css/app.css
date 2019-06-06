@@ -1,0 +1,102 @@
+body{
+	color: #333;
+}
+html{
+   touch-action:none;
+}
+.bgf{
+	background: #fff;
+}
+.search-wrap{
+	padding: 10px 15px;
+}
+.search-input{
+	width: 100%;
+	height: 30px;
+	padding: 3px 0;
+	text-indent: 40px;
+	border: 1px #e8e8e8 solid;
+	background: #f7f7f7 url(../imgs/search.png) 10px center no-repeat;
+	background-size: 18px auto; 
+}
+.search-select-box{
+	padding-top: 10px;
+}
+.search-select-label{
+	width: 60px;
+	margin-right: 10px;
+	line-height: 38px;
+	font-size: 14px;
+	text-align: right;
+}
+.search-select{
+	width: 100%;
+	height: 36px;
+	text-indent: 10px;
+	border: 1px #e8e8e8 solid;
+	background: #f7f7f7;
+}
+.search-follow{
+	height: 30px;
+	margin-top: 5px;
+	line-height: 30px;
+	text-indent: 25px;
+	background: url(../imgs/follow.png) 0px center no-repeat;
+	background-size: 18px auto;
+}
+.search-follow.active{
+	background: url(../imgs/follow_on.png) 0px center no-repeat;
+	background-size: 18px auto;
+}
+.table-wrap{
+	color: #666;
+}
+.table-left{
+	width: 140px;
+}
+.table{
+	border-collapse: collapse;
+	border-spacing: 0;
+
+}
+.table th,.table td{
+	padding: 0 5px;
+	height: 50px;
+	text-align: center;
+	border: 1px #e3e3e4 solid;
+	overflow: hidden;
+}
+.table .name{
+	max-height: 50px;
+}
+.table .tl{
+	text-align: left;
+}
+.table .pb{
+	/*padding: 38px 5px 39px 5px;*/
+}
+.table-bg{
+	background: rgba(40,115,255,0.1);
+}
+.table-bg th,.table-bg td{
+	border-left: 0;
+}
+.table .w100{
+	width: 100px;
+}
+.table .w200{
+	width: 200px;
+}
+.table-right{
+	overflow: hidden;
+}
+.wrapper{
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.scroller{
+	position: absolute;
+	left: 0;
+	top: 0;
+}
