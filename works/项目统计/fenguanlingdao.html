@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta name="format-detection" content="telephone=no">
+	<meta name="renderer" content="webkit">
+	<title></title>
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+	<article>
+		<section class="table-wrap dis-box">
+			<div class="table-left" id="tableBox">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="pb" width="70">序号</th>
+							<th class="pb" width="70">姓名</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-id="1">
+							<td>1</td>
+							<td>
+								<div class="name">陈宁</div>
+							</td>
+						</tr>
+						<tr data-id="2">
+							<td>2</td>
+							<td>
+								<div class="name">王丽</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="table-right box-flex">
+				<div id="wrapper" class="wrapper">
+					<div class="scroller">
+						<table class="table table-bg">
+							<thead>
+								<tr>
+									<th rowspan="2"><div class="w100"></div>预算金额(万元)</th>
+									<th colspan="2"><div class="w200"></div>执行总额</th>
+									<th rowspan="2"><div class="w100"></div>绩效资料完成度</th>
+									<th rowspan="2"><div class="w100"></div>绩效评价结果</th>
+								</tr>
+								<tr>
+									<th>金额(万元)</th>
+									<th>百分比(%)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-id="1">
+									<td>1200.85</td>
+									<td>1288</td>
+									<td>65%</td>
+									<td>585</td>
+									<td>3.56</td>
+								</tr>
+								<tr data-id="2">
+									<td>1200.85</td>
+									<td>1288</td>
+									<td>65%</td>
+									<td>585</td>
+									<td>3.56</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</section>
+	</article>
+	<script src="js/zepto.min.js"></script>
+	<script src="js/iscroll.js"></script>
+	<script>
+		$(function(){
+			var app = {
+				goPage: function(id){
+					if(navigator.userAgent.toLowerCase().indexOf('mac os x')>0){
+						var obj = {
+							"id": id
+						};
+			        	window.webkit.messageHandlers.gopage.postMessage(obj);
+			        }else if(navigator.userAgent.indexOf('Android')>0){
+			            window.app.goPage(id);
+			        }
+				}
+			};
+			//横向滚动
+			var myScroll = new IScroll('#wrapper',{
+				 mouseWheel: false, //鼠标滚轮
+				 scrollX: true,
+				 scrollY: false
+			});
+			//每行点击跳转
+			$('.table').on('click', 'td', function(){
+				var id = $(this).parent().attr('data-id');
+				try {
+					app.goPage(id);
+				} catch(e) {
+					
+				}
+			});
+		})
+	</script>
+</body>
+</html>

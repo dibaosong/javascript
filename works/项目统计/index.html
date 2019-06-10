@@ -13,12 +13,13 @@
 <body>
 	<article>
 		<section class="search-wrap bgf">
-			<input type="text" class="search-input" placeholder="请输入...">
+			<input id="searchInput" type="search" class="search-input" placeholder="请输入...">
 			<div class="dis-box search-select-box">
 				<!-- <div class="search-select-label">部门</div> -->
 				<div class="box-flex">
 					<select class="search-select">
 						<option value="0">作家协会</option>
+						<option value="1">开心家族</option>
 					</select>
 				</div>
 			</div>
@@ -27,13 +28,14 @@
 				<div class="box-flex">
 					<select class="search-select">
 						<option value="0">陈宁</option>
+						<option value="1">王丽</option>
 					</select>
 				</div>
 			</div>
 			<div class="search-follow">我关注的</div>
 		</section>
 		<section class="table-wrap dis-box">
-			<div class="table-left">
+			<div class="table-left" id="tableBox">
 				<table class="table">
 					<thead>
 						<tr>
@@ -46,12 +48,12 @@
 							<td colspan="2">合计</td>
 						</tr>
 						<tr>
-							<td>1+</td>
+							<td class="js-show-btn" data-id="1">1+</td>
 							<td class="tl">
 								<div class="name">对口支援活动</div>
 							</td>
 						</tr>
-						<tr>
+						<tr class="none js-show1">
 							<td>1-1</td>
 							<td class="tl">
 								<div class="name">对口支援活动</div>
@@ -87,7 +89,7 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td>200.85</td>
+									<td>8200.85</td>
 									<td>1288</td>
 									<td>65%</td>
 									<td>585</td>
@@ -96,7 +98,16 @@
 									<td>6</td>
 								</tr>
 								<tr>
-									<td>200.85</td>
+									<td>1200.85</td>
+									<td>1288</td>
+									<td>65%</td>
+									<td>585</td>
+									<td>3.56</td>
+									<td>65%</td>
+									<td>6</td>
+								</tr>
+								<tr class="none js-show1">
+									<td>2200.85</td>
 									<td>1288</td>
 									<td>65%</td>
 									<td>585</td>
@@ -105,7 +116,7 @@
 									<td>6</td>
 								</tr>
 								<tr>
-									<td>200.85</td>
+									<td>3200.85</td>
 									<td>1288</td>
 									<td>65%</td>
 									<td>585</td>
@@ -120,9 +131,46 @@
 			</div>
 		</section>
 	</article>
-	<div style="height:2000px;"></div>
 	<script src="js/zepto.min.js"></script>
 	<script src="js/iscroll.js"></script>
-	<script src="js/app.js"></script>
+	<script>
+		$(function(){
+			var app = {
+				getData: function(){
+					var value = $.trim($('#searchInput').val());
+
+				}
+			};
+
+			//横向滚动
+			var myScroll = new IScroll('#wrapper',{
+				 mouseWheel: false, //鼠标滚轮
+				 scrollX: true,
+				 scrollY: false
+			});
+
+			//搜索框
+			$('#searchInput').on('search', function(e){
+				var value = $.trim($(this).val());
+				if(value != ''){
+					app.getData();
+				};
+			});
+			//下拉菜单
+			$('.search-select').on('change', function(){
+				app.getData();
+			});
+			//我关注的
+			$('.search-follow').on('click', function(){
+				$(this).toggleClass('active');
+				app.getData();
+			});
+			//表格展开子级
+			$('#tableBox').on('click', '.js-show-btn', function(){
+				var id = $(this).attr('data-id');
+				$('.js-show'+id).toggleClass('none');
+			});
+		})
+	</script>
 </body>
 </html>
