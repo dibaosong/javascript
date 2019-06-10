@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta name="format-detection" content="telephone=no">
+	<meta name="renderer" content="webkit">
+	<meta name="keywords" content="炒菜、盒子">
+	<meta name="description" content="让您用记炒菜">
+	<title></title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		body,html{
+			width: 100%;
+			height: 100%;
+			background: #000;
+		}
+		.main{
+			max-width: 750px;
+			margin: 0 auto;
+		}
+		video{
+			width: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<video id="video" controls="controls" preload="auto">
+			您的浏览器版本过低，请下载最新版本。
+		</video>
+	</div>
+	<script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			//获取url地址参数
+		    function getQueryString(name) {
+		        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+		        var r = window.location.search.substr(1).match(reg);
+		        if (r != null) return decodeURIComponent(r[2]);
+		        return null;
+		    };
+		    var name = getQueryString('name');
+
+		    var obj = {
+		    	"maladoufu": "麻辣豆腐",
+		    	"shuizhuroupian": "水煮肉片",
+		    	"tudoushaopaigu": "土豆烧排骨",
+		    	"caihuachaorou": "菜花炒肉",
+		    	"gongbaojiding": "宫保鸡丁",
+		    	"huiguorou": "回锅肉",
+		    	"jiachangdoufu": "家常豆腐",
+		    	"saoxihulu": "烧西葫芦",
+		    	"songrenyumi": "松仁玉米",
+		    	"suanlatudousi": "酸辣土豆丝",
+		    	"tudouchaoroupian": "土豆炒肉片",
+		    	"tudoushaojikuai": "土豆烧鸡块",
+		    	"yuxiangrousi": "鱼香肉丝"
+		    };
+
+		    var video = document.getElementById('video'),
+		    	videoS = document.createElement('source'),
+		    	src = 'http://cook.dibaosong.com/' + name + '.mp4';
+		    videoS.setAttribute('src', src);
+		    video.appendChild(videoS);
+		    video.play();
+
+		    document.title = obj[name];
+
+		    
+		    document.addEventListener("WeixinJSBridgeReady", function () {
+			    document.getElementById('video').play();
+			}, false);
+
+		    
+		})
+	</script>
+</body>
+</html>
