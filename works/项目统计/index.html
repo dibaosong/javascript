@@ -17,24 +17,23 @@
 			<div class="dis-box search-select-box">
 				<!-- <div class="search-select-label">部门</div> -->
 				<div class="box-flex">
-					<select class="search-select">
-						<option value="0">作家协会</option>
-						<option value="1">开心家族</option>
+					<select class="search-select" id="bmSelect">
+						<option value="">请选择部门</option>
 					</select>
 				</div>
 			</div>
 			<div class="dis-box search-select-box">
 				<!-- <div class="search-select-label">分管领导</div> -->
 				<div class="box-flex">
-					<select class="search-select">
-						<option value="0">陈宁</option>
-						<option value="1">王丽</option>
+					<select class="search-select" id="fgldSelect">
+						<option value="">请选择分管领导</option>
 					</select>
 				</div>
 			</div>
-			<div class="search-follow">我关注的</div>
+			<!-- <div class="search-follow">我关注的</div> -->
 		</section>
 		<section class="table-wrap dis-box">
+			<div class="loading"></div>
 			<div class="table-left" id="tableBox">
 				<table class="table">
 					<thead>
@@ -44,7 +43,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
+						<!-- <tr>
 							<td colspan="2">合计</td>
 						</tr>
 						<tr>
@@ -64,7 +63,7 @@
 							<td class="tl">
 								<div class="name">对口支援活动</div>
 							</td>
-						</tr>
+						</tr> -->
 					</tbody>
 				</table>
 			</div>
@@ -88,7 +87,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
+								<!-- <tr>
 									<td>8200.85</td>
 									<td>1288</td>
 									<td>65%</td>
@@ -123,22 +122,170 @@
 									<td>3.56</td>
 									<td>65%</td>
 									<td>6</td>
-								</tr>
+								</tr> -->
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
 		</section>
+		<div class="tc f15 table-nodata">没有发现数据哦~</div>
 	</article>
 	<script src="js/zepto.min.js"></script>
 	<script src="js/iscroll.js"></script>
 	<script>
 		$(function(){
+			function getQueryString(name) {
+		        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+		        var r = window.location.search.substr(1).match(reg);
+		        if (r != null) return decodeURIComponent(r[2]);
+		        return null;
+		    };
+			var userId = getQueryString('userId'),
+				time = getQueryString('time');
 			var app = {
-				getData: function(){
-					var value = $.trim($('#searchInput').val());
+				//获取部门
+				getBm: function(){
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/position/project-index',
+						type: 'get',
+						data: {"userId": userId},
+						success: function(res){
+							if(res.ok){
+								var html = '';
+								$.each(res.data, function(i, t){
+									html += '<option value="'+ t.id +'">'+ t.name +'</option>';
+								});
+								$('#bmSelect').append(html);
+							}
+						}
+					})
+				},
+				//获取分管领导
+				getfgld: function(){
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/user/get-secretary-list',
+						type: 'get',
+						data: {"userId": "", "time": time},
+						success: function(res){
+							if(res.ok){
+								var html = '';
+								$.each(res.data, function(i, t){
+									html += '<option value="'+ t.id +'">'+ t.name +'</option>';
+								});
+								$('#fgldSelect').append(html);
+							}
+						}
+					})
+				},
+				renderData: function(data){
+					if(data.length == 0){
+						$('.table-nodata').show();
+						$('.table-left tbody').html('');
+						$('.table-right tbody').html('');
+						$('.loading').addClass('none');
+						return;
+					};
+					var lhtml = '<tr><td colspan="2">合计</td></tr>',
+						rhtml = '',
+						money = 0,
+						do_money = 0,
+						completion_rate = 0,
+						concern_num = 0,
+						satisfaction_num = 0,
+						finish_progress = 0,
+						achievements = 0;
+					$.each(data, function(i, t){
+						money += parseFloat(t.money);
+						do_money += parseFloat(t.do_money);
+						completion_rate += parseFloat(t.completion_rate);
+						concern_num += parseFloat(t.concern_num);
+						satisfaction_num += parseFloat(t.satisfaction_num);
+						finish_progress += parseFloat(t.finish_progress);
+						achievements += parseFloat(t.achievements);
 
+						lhtml += '<tr>';
+						lhtml += '<td>'+ (i+1) +'</td>';
+						lhtml += '<td class="tl">';
+						lhtml += '<div class="name">'+ t.name +'</div>';
+						lhtml += '</td>';
+						lhtml += '</tr>';
+
+						rhtml += '<tr>';
+						rhtml += '<td>'+ t.money +'</td>';
+						rhtml += '<td>'+ t.do_money +'</td>';
+						rhtml += '<td>'+ t.completion_rate +'</td>';
+						rhtml += '<td>'+ t.concern_num +'</td>';
+						rhtml += '<td>'+ t.satisfaction_num +'</td>';
+						rhtml += '<td>'+ t.finish_progress +'</td>';
+						rhtml += '<td>'+ t.achievements +'</td>';
+						rhtml += '</tr>';
+					});
+					var totalHtml = '<tr>';
+						totalHtml += '<td>'+ money +'</td>';
+						totalHtml += '<td>'+ do_money +'</td>';
+						totalHtml += '<td>'+ completion_rate +'</td>';
+						totalHtml += '<td>'+ concern_num +'</td>';
+						totalHtml += '<td>'+ satisfaction_num +'</td>';
+						totalHtml += '<td>'+ finish_progress +'</td>';
+						totalHtml += '<td>'+ achievements +'</td>';
+						totalHtml += '</tr>';
+					rhtml = totalHtml + rhtml;
+					$('.table-left tbody').html(lhtml);
+					$('.table-right tbody').html(rhtml);
+					$('.loading').addClass('none');
+				},
+				//获取项目列表
+				getData: function(){
+					var positionId = $('#bmSelect').val(),
+						secretarytagId = $('#fgldSelect').val();
+					var data = {
+						"userId": userId,
+						"time": time,
+						"positionId": positionId,
+						"modelId": "",
+						"secretarytagId": secretarytagId,
+						"pageNum": 1,
+						"rp": 1000
+					};
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/project/getlist',
+						type: 'get',
+						data: data,
+						beforeSend: function(){
+							$('.loading').removeClass('none');
+							$('.table-nodata').hide();
+						},
+						success: function(res){
+							if(res.ok){
+								app.renderData(res.data);
+							}
+						}
+					})
+				},
+				//搜索项目列表
+				searchData: function(value){
+					var data = {
+						"userId": userId,
+						"time": time,
+						"keywords": value,
+						"pageNum": 1,
+						"rp": 1000
+					};
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/project/search',
+						type: 'get',
+						data: data,
+						beforeSend: function(){
+							$('.loading').removeClass('none');
+							$('.table-nodata').hide();
+						},
+						success: function(res){
+							if(res.ok){
+								app.renderData(res.data);
+							}
+						}
+					})
 				}
 			};
 
@@ -149,15 +296,24 @@
 				 scrollY: false
 			});
 
+			app.getBm();
+			app.getfgld();
+			app.getData();
+
 			//搜索框
 			$('#searchInput').on('search', function(e){
 				var value = $.trim($(this).val());
-				if(value != ''){
-					app.getData();
+				if(value == ''){
+					return;
 				};
+				$('.search-select').each(function(){
+					$(this).find('option:first').prop('selected', true);
+				});
+				app.searchData(value);
 			});
 			//下拉菜单
 			$('.search-select').on('change', function(){
+				$('#searchInput').val('');
 				app.getData();
 			});
 			//我关注的

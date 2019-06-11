@@ -55,7 +55,16 @@ select{
 	background-size: 18px auto;
 }
 .table-wrap{
+	position: relative;
 	color: #666;
+}
+.table-wrap .loading{
+	position: absolute;
+	top: 160px;
+}
+.table-nodata{
+	display: none;
+	padding-top: 50px;
 }
 .table-left{
 	width: 140px;
@@ -75,6 +84,12 @@ select{
 }
 .table .name{
 	max-height: 50px;
+	color: #000;
+	overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;
+}
+.table .bm-name{
+	color: #666;
+	text-align: left;
 }
 .table .tl{
 	text-align: left;

@@ -13,16 +13,17 @@
 <body>
 	<article>
 		<section class="table-wrap dis-box">
+			<div class="loading"></div>
 			<div class="table-left" id="tableBox">
 				<table class="table">
 					<thead>
 						<tr>
-							<th class="pb" width="70">序号</th>
-							<th class="pb" width="70">姓名</th>
+							<th class="pb" width="40">序号</th>
+							<th class="pb" width="100">姓名</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr data-id="1">
+						<!-- <tr data-id="1">
 							<td>1</td>
 							<td>
 								<div class="name">陈宁</div>
@@ -33,7 +34,7 @@
 							<td>
 								<div class="name">王丽</div>
 							</td>
-						</tr>
+						</tr> -->
 					</tbody>
 				</table>
 			</div>
@@ -54,7 +55,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr data-id="1">
+								<!-- <tr data-id="1">
 									<td>1200.85</td>
 									<td>1288</td>
 									<td>65%</td>
@@ -67,7 +68,7 @@
 									<td>65%</td>
 									<td>585</td>
 									<td>3.56</td>
-								</tr>
+								</tr> -->
 							</tbody>
 						</table>
 					</div>
@@ -79,16 +80,80 @@
 	<script src="js/iscroll.js"></script>
 	<script>
 		$(function(){
+			function getQueryString(name) {
+		        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+		        var r = window.location.search.substr(1).match(reg);
+		        if (r != null) return decodeURIComponent(r[2]);
+		        return null;
+		    };
+			var time = getQueryString('time');
 			var app = {
-				goPage: function(id){
-					if(navigator.userAgent.toLowerCase().indexOf('mac os x')>0){
-						var obj = {
-							"id": id
-						};
-			        	window.webkit.messageHandlers.gopage.postMessage(obj);
-			        }else if(navigator.userAgent.indexOf('Android')>0){
-			            window.app.goPage(id);
-			        }
+				//获取分管领导
+				getfgld: function(){
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/user/get-secretary-list',
+						type: 'get',
+						data: {"userId": "", "time": time},
+						beforeSend: function(){
+							$('.loading').removeClass('none');
+						},
+						success: function(res){
+							var lhtml = '',
+								rhtml = '';
+							if(res.ok){
+								$.each(res.data, function(i, t){
+									var indexStr = '',
+										total_money = t.total_money || '-',
+										total_do_money = t.total_do_money || '-',
+										ratio_total_money = t.ratio_total_money || '-',
+										ratio_projects_progress = t.ratio_projects_progress || '-',
+										total_achievements = t.total_achievements || '-';
+									if(!!t.departments){
+										indexStr = i + 1 + '+';
+									}else{
+										indexStr = i + 1;
+									};
+									lhtml += '<tr class="js-show-btn" data-id="'+ t.id +'">';
+									lhtml += '<td>'+ indexStr +'</td>';
+									lhtml += '<td>';
+									lhtml += '<div class="name">'+ t.name +'</div>';
+									lhtml += '</td>';
+									lhtml += '</tr>';
+
+									rhtml += '<tr data-id="1">';
+									rhtml += '<td>'+ total_money +'</td>';
+									rhtml += '<td>'+ total_do_money +'</td>';
+									rhtml += '<td>'+ ratio_total_money +'</td>';
+									rhtml += '<td>'+ ratio_projects_progress +'</td>';
+									rhtml += '<td>'+ total_achievements +'</td>';
+									rhtml += '</tr>';
+
+									if(!!t.departments){
+										$.each(t.departments, function(index, item){
+											var iStr = index + 1;
+											lhtml += '<tr class="none js-show'+ t.id +'">';
+											lhtml += '<td>'+ (i+1+'_'+iStr) +'</td>';
+											lhtml += '<td>';
+											lhtml += '<div class="name bm-name">'+ item.name +'</div>';
+											lhtml += '</td>';
+											lhtml += '</tr>';
+
+											rhtml += '<tr class="none js-show'+ t.id +'">';
+											rhtml += '<td>'+ item.total_money +'</td>';
+											rhtml += '<td>'+ item.do_money +'</td>';
+											rhtml += '<td>'+ item.satisfaction_num +'</td>';
+											rhtml += '<td>'+ item.completion_rate +'</td>';
+											rhtml += '<td>'+ item.achievements +'</td>';
+											rhtml += '</tr>';
+										});
+									};
+								});
+								$('.table-left tbody').html(lhtml);
+								$('.table-right tbody').html(rhtml);
+								$('.loading').addClass('none');
+							}
+						}
+					})
 				}
 			};
 			//横向滚动
@@ -97,14 +162,11 @@
 				 scrollX: true,
 				 scrollY: false
 			});
-			//每行点击跳转
-			$('.table').on('click', 'td', function(){
-				var id = $(this).parent().attr('data-id');
-				try {
-					app.goPage(id);
-				} catch(e) {
-					
-				}
+			app.getfgld();
+			//表格展开子级
+			$('#tableBox').on('click', '.js-show-btn', function(){
+				var id = $(this).attr('data-id');
+				$('.js-show'+id).toggleClass('none');
 			});
 		})
 	</script>
