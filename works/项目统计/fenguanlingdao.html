@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-	<article>
+	<article class="main">
 		<section class="table-wrap dis-box">
 			<div class="loading"></div>
 			<div class="table-left" id="tableBox">
@@ -44,6 +44,7 @@
 						<table class="table table-bg">
 							<thead>
 								<tr>
+									<th rowspan="2"><div class="w100"></div>项目数量</th>
 									<th rowspan="2"><div class="w100"></div>预算金额(万元)</th>
 									<th colspan="2"><div class="w200"></div>执行总额</th>
 									<th rowspan="2"><div class="w100"></div>绩效资料完成度</th>
@@ -88,6 +89,15 @@
 		    };
 			var time = getQueryString('time');
 			var app = {
+				setAppH: function(){
+					var height = $('.main').height();
+					
+					if(navigator.userAgent.toLowerCase().indexOf('mac os x')>0){
+						window.webkit.messageHandlers.setHeight.postMessage({"height": height});
+					}else if(navigator.userAgent.indexOf('Android')>0){
+						window.app.setHeight(height);
+					}
+				},
 				//获取分管领导
 				getfgld: function(){
 					$.ajax({
@@ -98,11 +108,24 @@
 							$('.loading').removeClass('none');
 						},
 						success: function(res){
-							var lhtml = '',
-								rhtml = '';
+							var lhtml = '<tr><td colspan="2">合计</td></tr>',
+								rhtml = '',
+								projectsTotal = 0,
+								total_moneyTotal = 0,
+								total_do_moneyTotal = 0,
+								ratio_total_moneyTotal = 0,
+								ratio_projects_progressTotal = 0,
+								total_achievementsTotal = 0;
 							if(res.ok){
 								$.each(res.data, function(i, t){
+									projectsTotal += parseFloat(t.projects || 0);
+									total_moneyTotal += parseFloat(t.total_money || 0);
+									total_do_moneyTotal += parseFloat(t.total_do_money || 0);
+									ratio_total_moneyTotal += parseFloat(t.ratio_total_money || 0);
+									ratio_projects_progressTotal += parseFloat(t.ratio_projects_progress || 0);
+									total_achievementsTotal += parseFloat(t.total_achievements || 0);
 									var indexStr = '',
+										projects = t.projects || '-',
 										total_money = t.total_money || '-',
 										total_do_money = t.total_do_money || '-',
 										ratio_total_money = t.ratio_total_money || '-',
@@ -121,6 +144,7 @@
 									lhtml += '</tr>';
 
 									rhtml += '<tr data-id="1">';
+									rhtml += '<td>'+ projects +'</td>';
 									rhtml += '<td>'+ total_money +'</td>';
 									rhtml += '<td>'+ total_do_money +'</td>';
 									rhtml += '<td>'+ ratio_total_money +'</td>';
@@ -139,6 +163,7 @@
 											lhtml += '</tr>';
 
 											rhtml += '<tr class="none js-show'+ t.id +'">';
+											rhtml += '<td>'+ item.projects +'</td>';
 											rhtml += '<td>'+ item.total_money +'</td>';
 											rhtml += '<td>'+ item.do_money +'</td>';
 											rhtml += '<td>'+ item.satisfaction_num +'</td>';
@@ -148,9 +173,24 @@
 										});
 									};
 								});
+								var totalHtml = '<tr>';
+									totalHtml += '<td>'+ projectsTotal +'</td>';
+									totalHtml += '<td>'+ total_moneyTotal +'</td>';
+									totalHtml += '<td>'+ total_do_moneyTotal +'</td>';
+									totalHtml += '<td>'+ ratio_total_moneyTotal +'</td>';
+									totalHtml += '<td>'+ ratio_projects_progressTotal +'</td>';
+									totalHtml += '<td>'+ total_achievementsTotal +'</td>';
+									totalHtml += '</tr>';
+								rhtml = totalHtml + rhtml;
 								$('.table-left tbody').html(lhtml);
 								$('.table-right tbody').html(rhtml);
 								$('.loading').addClass('none');
+								try{
+									app.setAppH();
+								}catch{
+
+								}
+								
 							}
 						}
 					})
@@ -167,6 +207,11 @@
 			$('#tableBox').on('click', '.js-show-btn', function(){
 				var id = $(this).attr('data-id');
 				$('.js-show'+id).toggleClass('none');
+				try{
+					app.setAppH();
+				}catch{
+					
+				}
 			});
 		})
 	</script>

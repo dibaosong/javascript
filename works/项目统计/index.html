@@ -38,8 +38,8 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th class="pb" width="30">序号</th>
-							<th class="pb" width="110">项目名称</th>
+							<th class="pb" width="40">序号</th>
+							<th class="pb" width="100">项目名称</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -144,6 +144,15 @@
 			var userId = getQueryString('userId'),
 				time = getQueryString('time');
 			var app = {
+				setAppH: function(){
+					var height = $('.main').height();
+					
+					if(navigator.userAgent.toLowerCase().indexOf('mac os x')>0){
+						window.webkit.messageHandlers.setHeight.postMessage({"height": height});
+					}else if(navigator.userAgent.indexOf('Android')>0){
+						window.app.setHeight(height);
+					}
+				},
 				//获取部门
 				getBm: function(){
 					$.ajax({
@@ -184,6 +193,11 @@
 						$('.table-left tbody').html('');
 						$('.table-right tbody').html('');
 						$('.loading').addClass('none');
+						try{
+							app.setAppH();
+						}catch{
+
+						}
 						return;
 					};
 					var lhtml = '<tr><td colspan="2">合计</td></tr>',
@@ -196,30 +210,58 @@
 						finish_progress = 0,
 						achievements = 0;
 					$.each(data, function(i, t){
-						money += parseFloat(t.money);
-						do_money += parseFloat(t.do_money);
-						completion_rate += parseFloat(t.completion_rate);
-						concern_num += parseFloat(t.concern_num);
-						satisfaction_num += parseFloat(t.satisfaction_num);
-						finish_progress += parseFloat(t.finish_progress);
-						achievements += parseFloat(t.achievements);
+						money += parseFloat(t.money || 0);
+						do_money += parseFloat(t.do_money || 0);
+						completion_rate += parseFloat(t.completion_rate || 0);
+						concern_num += parseFloat(t.concern_num || 0);
+						satisfaction_num += parseFloat(t.satisfaction_num || 0);
+						finish_progress += parseFloat(t.finish_progress || 0);
+						achievements += parseFloat(t.achievements || 0);
 
-						lhtml += '<tr>';
-						lhtml += '<td>'+ (i+1) +'</td>';
+						var indexStr = '';
+						if(!!t.projectList){
+							indexStr = i + 1 + '+';
+						}else{
+							indexStr = i + 1;
+						};
+						lhtml += '<tr class="js-show-btn" data-id="'+ t.id +'">';
+						lhtml += '<td>'+ indexStr +'</td>';
 						lhtml += '<td class="tl">';
 						lhtml += '<div class="name">'+ t.name +'</div>';
 						lhtml += '</td>';
 						lhtml += '</tr>';
 
 						rhtml += '<tr>';
-						rhtml += '<td>'+ t.money +'</td>';
-						rhtml += '<td>'+ t.do_money +'</td>';
-						rhtml += '<td>'+ t.completion_rate +'</td>';
-						rhtml += '<td>'+ t.concern_num +'</td>';
-						rhtml += '<td>'+ t.satisfaction_num +'</td>';
-						rhtml += '<td>'+ t.finish_progress +'</td>';
-						rhtml += '<td>'+ t.achievements +'</td>';
+						rhtml += '<td>'+ (t.money || "-") +'</td>';
+						rhtml += '<td>'+ (t.do_money || "-") +'</td>';
+						rhtml += '<td>'+ (t.completion_rate || "-") +'</td>';
+						rhtml += '<td>'+ (t.concern_num || "-") +'</td>';
+						rhtml += '<td>'+ (t.satisfaction_num || "-") +'</td>';
+						rhtml += '<td>'+ (t.finish_progress || "-") +'</td>';
+						rhtml += '<td>'+ (t.achievements || "-") +'</td>';
 						rhtml += '</tr>';
+
+						if(!!t.projectList){
+							$.each(t.projectList, function(index, item){
+								var iStr = index + 1;
+								lhtml += '<tr class="none js-show'+ t.id +'">';
+								lhtml += '<td>'+ (i+1+'_'+iStr) +'</td>';
+								lhtml += '<td>';
+								lhtml += '<div class="name">'+ item.name +'</div>';
+								lhtml += '</td>';
+								lhtml += '</tr>';
+
+								rhtml += '<tr class="none js-show'+ t.id +'">';
+								rhtml += '<td>'+ (item.money || "-") +'</td>';
+								rhtml += '<td>'+ (item.do_money || "-") +'</td>';
+								rhtml += '<td>'+ (item.completion_rate || "-") +'</td>';
+								rhtml += '<td>'+ (item.concern_num || "-") +'</td>';
+								rhtml += '<td>'+ (item.satisfaction_num || "-") +'</td>';
+								rhtml += '<td>'+ (item.finish_progress || "-") +'</td>';
+								rhtml += '<td>'+ (item.achievements || "-") +'</td>';
+								rhtml += '</tr>';
+							});
+						};
 					});
 					var totalHtml = '<tr>';
 						totalHtml += '<td>'+ money +'</td>';
@@ -234,6 +276,11 @@
 					$('.table-left tbody').html(lhtml);
 					$('.table-right tbody').html(rhtml);
 					$('.loading').addClass('none');
+					try{
+						app.setAppH();
+					}catch{
+
+					}
 				},
 				//获取项目列表
 				getData: function(){
@@ -325,6 +372,11 @@
 			$('#tableBox').on('click', '.js-show-btn', function(){
 				var id = $(this).attr('data-id');
 				$('.js-show'+id).toggleClass('none');
+				try{
+					app.setAppH();
+				}catch{
+
+				}
 			});
 		})
 	</script>
