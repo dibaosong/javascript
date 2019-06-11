@@ -246,7 +246,7 @@
 								var iStr = index + 1;
 								lhtml += '<tr class="none js-show'+ t.id +'">';
 								lhtml += '<td>'+ (i+1+'_'+iStr) +'</td>';
-								lhtml += '<td>';
+								lhtml += '<td class="tl">';
 								lhtml += '<div class="name">'+ item.name +'</div>';
 								lhtml += '</td>';
 								lhtml += '</tr>';
@@ -263,6 +263,7 @@
 							});
 						};
 					});
+
 					var totalHtml = '<tr>';
 						totalHtml += '<td>'+ money +'</td>';
 						totalHtml += '<td>'+ do_money +'</td>';
