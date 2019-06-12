@@ -14,7 +14,7 @@
 	<article class="main">
 		<section class="table-wrap dis-box">
 			<div class="loading"></div>
-			<div class="table-left" id="tableBox">
+			<div class="table-left table-lefts" id="tableBox">
 				<table class="table">
 					<thead>
 						<tr>
@@ -47,7 +47,7 @@
 									<th rowspan="2"><div class="w100"></div>项目数量</th>
 									<th rowspan="2"><div class="w100"></div>预算金额(万元)</th>
 									<th colspan="2"><div class="w200"></div>执行总额</th>
-									<th rowspan="2"><div class="w100"></div>绩效资料完成度</th>
+									<th rowspan="2"><div class="w100"></div>绩效资料完整度</th>
 									<th rowspan="2"><div class="w100"></div>绩效评价结果</th>
 								</tr>
 								<tr>
@@ -196,6 +196,13 @@
 										});
 									};
 								});
+
+								if(total_moneyTotal+''.indexOf('.') != -1){
+									total_moneyTotal = parseFloat(total_moneyTotal).toFixed(2);
+								};
+								if(total_do_moneyTotal+''.indexOf('.') != -1){
+									total_do_moneyTotal = parseFloat(total_do_moneyTotal).toFixed(2);
+								};
 								var totalHtml = '<tr>';
 									totalHtml += '<td>'+ projectsTotal +'</td>';
 									totalHtml += '<td>'+ total_moneyTotal +'</td>';

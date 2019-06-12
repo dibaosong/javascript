@@ -39,7 +39,7 @@
 					<thead>
 						<tr>
 							<th class="pb" width="40">序号</th>
-							<th class="pb" width="100">项目名称</th>
+							<th class="pb" width="200">项目名称</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -76,14 +76,14 @@
 									<th rowspan="2"><div class="w100"></div>批复金额(万元)</th>
 									<th colspan="2"><div class="w200"></div>执行指标</th>
 									<th colspan="2"><div class="w200"></div>满意度调查</th>
-									<th rowspan="2"><div class="w100"></div>绩效资料完成度</th>
-									<th rowspan="2"><div class="w100"></div>绩效评价结果(10)</th>
+									<th rowspan="2"><div class="w100"></div>绩效资料完整度</th>
+									<th rowspan="2"><div class="w100"></div>绩效评价结果</th>
 								</tr>
 								<tr>
-									<th>金额</th>
-									<th>%</th>
-									<th>参与度</th>
-									<th>满意度(5)</th>
+									<th>金额(万元)</th>
+									<th>百分比(%)</th>
+									<th>参与人数</th>
+									<th>满意度</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -261,7 +261,7 @@
 								lhtml += '<tr class="none js-show'+ t.id +'">';
 								lhtml += '<td>'+ (i+1+'_'+iStr) +'</td>';
 								lhtml += '<td class="tl">';
-								lhtml += '<div class="name bm-name">'+ item.name +'</div>';
+								lhtml += '<div class="name bm-name">'+ '【'+ t.name +'】'+ item.name +'</div>';
 								lhtml += '</td>';
 								lhtml += '</tr>';
 
@@ -292,6 +292,13 @@
 							});
 						};
 					});
+					
+					if(money+''.indexOf('.') != -1){
+						money = parseFloat(money).toFixed(2);
+					};
+					if(do_money+''.indexOf('.') != -1){
+						do_money = parseFloat(do_money).toFixed(2);
+					};
 
 					var totalHtml = '<tr>';
 						totalHtml += '<td>'+ money +'</td>';
