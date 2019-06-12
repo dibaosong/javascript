@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-	<article>
+	<article class="main">
 		<section class="search-wrap bgf">
 			<input id="searchInput" type="search" class="search-input" placeholder="请输入...">
 			<div class="dis-box search-select-box">
@@ -150,7 +150,7 @@
 					if(navigator.userAgent.toLowerCase().indexOf('mac os x')>0){
 						window.webkit.messageHandlers.setHeight.postMessage({"height": height});
 					}else if(navigator.userAgent.indexOf('Android')>0){
-						window.app.setHeight(height);
+						window.app_android.app_setHeight(height);
 					}
 				},
 				//获取部门
@@ -195,8 +195,8 @@
 						$('.loading').addClass('none');
 						try{
 							app.setAppH();
-						}catch{
-
+						}catch(e){
+							
 						}
 						return;
 					};
@@ -210,13 +210,27 @@
 						finish_progress = 0,
 						achievements = 0;
 					$.each(data, function(i, t){
-						money += parseFloat(t.money || 0);
-						do_money += parseFloat(t.do_money || 0);
-						completion_rate += parseFloat(t.completion_rate || 0);
-						concern_num += parseFloat(t.concern_num || 0);
-						satisfaction_num += parseFloat(t.satisfaction_num || 0);
-						finish_progress += parseFloat(t.finish_progress || 0);
-						achievements += parseFloat(t.achievements || 0);
+						var moneyS = t.money || 0,
+							do_moneyS = t.do_money || 0,
+							completion_rateS = t.completion_rate || 0,
+							concern_numS = t.concern_num || 0,
+							satisfaction_numS = t.satisfaction_num || 0,
+							finish_progressS = t.finish_progress || 0,
+							achievementsS = t.achievements || 0;
+						if(moneyS+''.indexOf('.') != -1){
+							moneyS = parseFloat(moneyS).toFixed(2);
+						};
+						if(do_moneyS+''.indexOf('.') != -1){
+							do_moneyS = parseFloat(do_moneyS).toFixed(2);
+						};
+
+						money += parseFloat(moneyS);
+						do_money += parseFloat(do_moneyS);
+						completion_rate += parseFloat(completion_rateS);
+						concern_num += parseFloat(concern_numS);
+						satisfaction_num += parseFloat(satisfaction_numS);
+						finish_progress += parseFloat(finish_progressS);
+						achievements += parseFloat(achievementsS);
 
 						var indexStr = '';
 						if(!!t.projectList){
@@ -232,13 +246,13 @@
 						lhtml += '</tr>';
 
 						rhtml += '<tr>';
-						rhtml += '<td>'+ (t.money || "-") +'</td>';
-						rhtml += '<td>'+ (t.do_money || "-") +'</td>';
-						rhtml += '<td>'+ (t.completion_rate || "-") +'</td>';
-						rhtml += '<td>'+ (t.concern_num || "-") +'</td>';
-						rhtml += '<td>'+ (t.satisfaction_num || "-") +'</td>';
-						rhtml += '<td>'+ (t.finish_progress || "-") +'</td>';
-						rhtml += '<td>'+ (t.achievements || "-") +'</td>';
+						rhtml += '<td>'+ moneyS +'</td>';
+						rhtml += '<td>'+ do_moneyS +'</td>';
+						rhtml += '<td>'+ completion_rateS +'</td>';
+						rhtml += '<td>'+ concern_numS +'</td>';
+						rhtml += '<td>'+ satisfaction_numS +'</td>';
+						rhtml += '<td>'+ finish_progressS +'</td>';
+						rhtml += '<td>'+ achievementsS +'</td>';
 						rhtml += '</tr>';
 
 						if(!!t.projectList){
@@ -247,18 +261,33 @@
 								lhtml += '<tr class="none js-show'+ t.id +'">';
 								lhtml += '<td>'+ (i+1+'_'+iStr) +'</td>';
 								lhtml += '<td class="tl">';
-								lhtml += '<div class="name">'+ item.name +'</div>';
+								lhtml += '<div class="name bm-name">'+ item.name +'</div>';
 								lhtml += '</td>';
 								lhtml += '</tr>';
 
+								var moneyM = item.money || 0,
+									do_moneyM = item.do_money || 0,
+									completion_rateM = item.completion_rate || 0,
+									concern_numM = item.concern_num || 0,
+									satisfaction_numM = item.satisfaction_num || 0,
+									finish_progressM = item.finish_progress || 0,
+									achievementsM = item.achievements || 0;
+
+								if(moneyM+''.indexOf('.') != -1){
+									moneyM = parseFloat(moneyM).toFixed(2);
+								};
+								if(do_moneyM+''.indexOf('.') != -1){
+									do_moneyM = parseFloat(do_moneyM).toFixed(2);
+								};
+
 								rhtml += '<tr class="none js-show'+ t.id +'">';
-								rhtml += '<td>'+ (item.money || "-") +'</td>';
-								rhtml += '<td>'+ (item.do_money || "-") +'</td>';
-								rhtml += '<td>'+ (item.completion_rate || "-") +'</td>';
-								rhtml += '<td>'+ (item.concern_num || "-") +'</td>';
-								rhtml += '<td>'+ (item.satisfaction_num || "-") +'</td>';
-								rhtml += '<td>'+ (item.finish_progress || "-") +'</td>';
-								rhtml += '<td>'+ (item.achievements || "-") +'</td>';
+								rhtml += '<td>'+ moneyM +'</td>';
+								rhtml += '<td>'+ do_moneyM +'</td>';
+								rhtml += '<td>'+ completion_rateM +'</td>';
+								rhtml += '<td>'+ concern_numM +'</td>';
+								rhtml += '<td>'+ satisfaction_numM +'</td>';
+								rhtml += '<td>'+ finish_progressM +'</td>';
+								rhtml += '<td>'+ achievementsM +'</td>';
 								rhtml += '</tr>';
 							});
 						};
@@ -279,8 +308,8 @@
 					$('.loading').addClass('none');
 					try{
 						app.setAppH();
-					}catch{
-
+					}catch(e){
+						
 					}
 				},
 				//获取项目列表
@@ -351,12 +380,13 @@
 			//搜索框
 			$('#searchInput').on('search', function(e){
 				var value = $.trim($(this).val());
-				if(value == ''){
-					return;
-				};
 				$('.search-select').each(function(){
 					$(this).find('option:first').prop('selected', true);
 				});
+				if(value == ''){
+					app.getData();
+					return;
+				};
 				app.searchData(value);
 			});
 			//下拉菜单
@@ -375,9 +405,12 @@
 				$('.js-show'+id).toggleClass('none');
 				try{
 					app.setAppH();
-				}catch{
-
+				}catch(e){
+					
 				}
+			});
+			document.addEventListener('contextmenu', function(e){
+			    e.preventDefault();
 			});
 		})
 	</script>

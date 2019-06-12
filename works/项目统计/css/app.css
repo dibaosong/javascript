@@ -1,5 +1,15 @@
 body{
 	color: #333;
+	-webkit-touch-callout: none; /*系统默认菜单被禁用*/
+  -webkit-user-select: none; /*webkit浏览器*/
+  -khtml-user-select: none; /*早起浏览器*/
+  -moz-user-select: none; /*火狐浏览器*/
+  -ms-user-select: none; /*IE浏览器*/
+  user-select: none; /*用户是否能够选中文本*/
+}
+input,select {
+  -webkit-user-select:auto; /*webkit浏览器*/
+  user-select: auto; /*用户是否能够选中文本*/
 }
 html{
 	touch-action:pan-y pinch-zoom;
@@ -76,14 +86,15 @@ select{
 }
 .table th,.table td{
 	padding: 0 5px;
-	height: 50px;
+	height: 53px;
 	text-align: center;
 	border: 1px #e3e3e4 solid;
 	overflow: hidden;
 	cursor: pointer;
 }
 .table .name{
-	max-height: 50px;
+	max-height: 53px;
+	line-height: 1.5;
 	color: #000;
 	overflow: hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;
 }
@@ -95,7 +106,7 @@ select{
 	text-align: left;
 }
 .table .pb{
-	height: 101px;
+	height: 107px;
 }
 .table-bg{
 	background: rgba(40,115,255,0.1);

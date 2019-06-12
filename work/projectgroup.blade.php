@@ -142,13 +142,15 @@
 		</button>
 		<div class="group-box mt-20">
 			<ul class="group-left" id="groupList">
-				<li data-year="2019" data-id="1"><span title="分组1分组1分组1分组1分组1分组1分组1">分组1分组1分组1分组1分组1分组1分组1</span><i title="删除分组" class="Hui-iconfont js-group-delete">&#xe6a6</i></li>
-				<li data-year="2019" data-id="2">分组2<i title="删除分组" class="Hui-iconfont js-group-delete">&#xe6a6</i></li>
+				@foreach($group as $group)
+					<li data-year="{{$group->year}}" data-id="{{$group->id}}" class="groupId" value="{{$group->id}}"><span title="{{$group->group_name}}">{{$group->group_name}}</span><i title="删除分组" class="Hui-iconfont js-group-delete">&#xe6a6</i></li>
+				@endforeach
 			</ul>
 			<div class="group-right" id="groupShow">
 				<div class="group-cons">
-					<div class="group-con">
-						<div class="group-conbox">
+					<div class="group-con" >
+						{{--项目列表--}}
+						<div class="group-conbox ti">
 							<button data-id="1" data-name="子项目1" data-money="100" class="js-project btn btn-primary-outline radius" type="button">子项目1 <i class="Hui-iconfont js-project-delete">&#xe6a6</i></button>
 						</div>
 						<button class="btn btn-primary radius js-add-project">
@@ -156,10 +158,10 @@
 						</button>
 					</div>
 					<div class="group-footer text-r">
-						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10 js-count">1</span> 合计金额：<span class="js-money">100</span>（万元）
+						分组年份：<span class="mr-10 year">{{$data['groupYear']}}</span> 计项目数量：<span class="mr-10 js-count num">{{$data['count']}}</span> 合计金额：<span class="js-money money">{{$data['money']}}</span>（万元）
 					</div>
 				</div>
-				<div class="group-cons">
+				<!-- <div class="group-cons">
 					<div class="group-con">
 						<div class="group-conbox"></div>
 						<button class="btn btn-primary radius js-add-project">
@@ -169,7 +171,7 @@
 					<div class="group-footer text-r">
 						分组年份：<span class="mr-10">2019</span> 计项目数量：<span class="mr-10 js-count">0</span> 合计金额：<span class="js-money">0</span>（万元）
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
@@ -230,7 +232,7 @@
 	</div>
 	
 
-	<input type="hidden" id="token" value="98CpjDMLP0GBJ05gUYBomKgRd07sVz5xax9hFYS1">
+	<input type="hidden" id="token" value="{{csrf_token()}}">
 
 
 	<!--_footer 作为公共模版分离出去-->
@@ -250,35 +252,17 @@
 					<i class="Hui-iconfont"></i> 添加项目
 				</button>
 			</div>
-			<div class="group-footer text-r">
-				分组年份：<span class="mr-10">{{data.groupYear}}</span> 计项目数量：<span class="mr-10 js-count">0</span> 合计金额：<span class="js-money">0</span>（万元）
-			</div>
+			
 		</div>
 	</script>
-	<!-- 搜索出的项目列表模板 -->
-	<script type="text/html" id="projectListTpl">
-		{{each data item index}}
-		<div class="cl">
-			<div class="check-box">
-				<input data-id="{{item.id}}" data-money="{{item.money}}" data-name="{{item.name}}" type="checkbox" id="checkbox-{{index}}">
-				<label for="checkbox-{{index}}">{{item.name}}</label>
-			</div>
-		</div>
-		{{/each}}
-	</script>
-	<!-- 添加的子项目模板 -->
-	<script type="text/html" id="projectConTpl">
-		{{each data item index}}
-		<button data-id="{{item.id}}" data-name="{{item.name}}" data-money="{{item.money}}" class="js-project btn btn-primary-outline radius" type="button">{{item.name}} <i class="Hui-iconfont js-project-delete">&#xe6a6</i></button>
-		{{/each}}
-	</script>
+
 	
 	
-	<script type="text/javascript" src="lib/template/template.js"></script>
+	<script type="text/javascript" src="/lib/template/template.js"></script>
 	<script>
 		$(function(){
 			var token = $("#token").val();
-
+			var groupId;
 			//统计当前分组的项目数量与金额
 			function getCountMoney(){
 				var box = $('.group-cons:visible'),
@@ -288,18 +272,30 @@
 				projects.each(function(){
 					money += Number($(this).attr('data-money'));
 				});
-				box.find('.js-count').text(count);
-				box.find('.js-money').text(money);
+				
+				// box.find('.js-count').text(count);
+				// box.find('.js-money').text(money);
 			};
+			
 
 			//分组切换
 			$('#groupList').on('click', 'li', function(){
 				var index = $(this).index();
 				$(this).addClass('active').siblings().removeClass('active');
-				$('.group-cons').eq(index).show().siblings().hide();
-			});
-			$('#groupList li:first').trigger('click');
+				// 页面加载时获取分组id
+				groupId = $(this).val();
+				huancounts(groupId)
+				//  请求接口传递id获取分组对应的项目
+				var url = "/projects";
+				var data = {'_token':token,'id':groupId};
+				$.get(url,data,function(data){
+					$('.ti').html(data);
+					$(this).addClass('active').siblings().removeClass('active');
+					$('.group-cons').eq(index).show().siblings().hide();
+					
+				})
 
+			});
 			//删除分组
 			$('#groupList').on('click', '.js-group-delete', function(e){
 				e.stopPropagation();
@@ -307,25 +303,46 @@
 				parent.layer.confirm('确定要删除该分组吗？', {
 		    
 				}, function(){
-					var id = _this.parent().attr('data-id'),
-						data = {
-							"id": id
-						};
-					$.ajax({
-						type: 'get',
-						url: '/data/project.json',
-						data: data,
-						success: function(data){
-							if(data.ok){
-								_this.remove();
-								layer.msg('删除成功!',{icon:1,time:1000});
-							}
-						}
-					});
+					var groupId = _this.parent().attr('data-id');
+					var url = "/";
+					var data = {'_token':token,'id':groupId};
+					$.get(url,data,function(data){
+						layer.msg('删除成功!',{icon:1,time:1000});
+						window.location.href= "/projectgroup"
+					})
 				}, function(){
 				    
 				});
 			});
+			// 项目金额、年份统计
+			function counts()
+			{
+				var groupId = $('.groupId').val();
+				var url = '/counts';
+				var data = {'_token':token,'id':groupId};
+				$.get(url,data,function(msg){
+					// console.log(msg.year)
+					$('.year').text(msg.year);
+					$('.num').text(msg.nums);
+					$('.money').text(msg.money);
+				})
+			}
+			// 分组切换获取金额、年份
+			function huancounts(id)
+			{
+				var groupId = id;
+				// console.log(groupId);
+				var url = '/counts';
+				var data = {'_token':token,'id':groupId};
+				$.get(url,data,function(msg){
+					// console.log(msg.year)
+					$('.year').text(msg.year);
+					$('.num').text(msg.nums);
+					$('.money').text(msg.money);
+				})
+			}
+
+			$('#groupList li:first').trigger('click');
 
 			//创建分组
 			$('#createGroupBtn').on('click', function(){
@@ -355,27 +372,26 @@
 				};
 				var data = {
 					"_token": token,
-					"groupName": groupName,
-					"groupYear": groupYear
+					"group_name": groupName,
+					"year": groupYear
 				};
-				$.ajax({
-					type: 'get',
-					url: '/data/add.json',
-					data: data,
-					success: function(data){
-						if(data.ok){
-							layer.msg('创建成功!',{icon:1,time:1000});
-							var liHtml = '<li data-year="'+ groupYear +'" data-id="'+ data.id +'">'+ groupName +'</li>';
-							$('#groupList').append(liHtml);
-							var html = template('groupTpl', {
-				    			data: {"groupYear": groupYear}
-				    		});
-							$('#groupShow').append(html);
-							$('#groupList li:last').trigger('click');
-							$('#groupModal').modal('hide');
-						}
+				var url = "/addzu";
+				$.get(url,data,function(data){
+					// console.log(data);return;
+					if(data.ok){
+						layer.msg('创建成功!',{icon:1,time:1000});
+						window.location.href= "/projectgroup"
+						// var liHtml = '<li data-year="'+ groupYear +'" data-id="'+ data.id +'">'+ groupName +'</li>';
+						// $('#groupList').append(liHtml);
+						// var html = template('groupTpl', {
+						// 	data: {"groupYear": groupYear}
+						// });
+						// $('#groupShow').append(html);
+						// $('#groupList li:last').trigger('click');
+						// $('#groupModal').modal('hide');
 					}
-				});
+				})
+
 			});
 			
 			var projectArr = [];
@@ -397,17 +413,24 @@
 		    
 				}, function(){
 					var id = _this.attr('data-id'),
+					
 						data = {
-							"id": id
+							"id": id,
+							"groupid" : groupId,
 						};
+						// console.log(groupId);return;
 					$.ajax({
+						
 						type: 'get',
-						url: '/data/project.json',
+						url: '/delgropro',
 						data: data,
 						success: function(data){
+							// console.log(data);return;
 							if(data.ok){
 								_this.remove();
 								layer.msg('删除成功!',{icon:1,time:1000});
+							}else{
+								layer.msg('删除失败!',{icon:1,time:1000});
 							}
 						}
 					});
@@ -418,36 +441,13 @@
 			//搜索项目
 			$('#projectSearch').on('click', function(){
 				var value = $.trim($('#projectInput').val());
-				if(value == ''){
-					$('#projectInput').focus();
-					return;
-				};
-				var year = $('#groupList li.active').attr('data-year'),
-					data = {
-						"keyword": value,
-						"groupYear": year
-					};
-				$.ajax({
-					type: 'get',
-					url: '/data/project.json',
-					data: data,
-					success: function(data){
-						if(data.ok){
-							var html = template('projectListTpl', {
-				    			data: data.list
-				    		});
-							$('#projectCheck').html(html);
-							$('#projectCheck input').iCheck({
-								checkboxClass: 'icheckbox-blue',
-								radioClass: 'iradio-blue',
-								increaseArea: '20%'
-							});
-							projectArr.forEach(function(item){
-								$('#projectCheck input[data-id="'+ item +'"]').iCheck('check');
-							});
-						}
-					}
-				});
+				var url ="/group";
+				var data = {'_token':token,'year':value};
+				$.get(url,data,function(msg){
+
+					$('#projectCheck').html(msg);
+				})
+
 			});
 			//项目输入框
 			$('#projectInput').on('keyup', function(e){
@@ -465,45 +465,22 @@
 		            });
 					return;
 				};
-				var ids = [],
-					arr = [];
-				check.each(function(){
-					var _this = $(this),
-						id = _this.attr('data-id'),
-						name = _this.attr('data-name'),
-						money = _this.attr('data-money');
-					if(projectArr.indexOf(id) == -1){
-						ids.push(id);
-						var obj = {
-							"id": id,
-							"name": name,
-							"money": money
-						};
-						arr.push(obj);
-					};
+				// 获取选中的项目id
+				var array = new Array();
+				$('input[name="project_ids"]:checked').each(function () {
+					array.push($(this).val());//向数组中添加元素
 				});
-				if(ids.length == 0){
-					$('#projectModal').modal('hide');
-					return;
-				};
-				var data = {
-					"ids": ids.join(',')
-				};
-				$.ajax({
-					type: 'get',
-					url: '/data/addProject.json',
-					data: data,
-					success: function(data){
-						if(data.ok){
-							$('#projectModal').modal('hide');
-							var html = template('projectConTpl', {
-				    			data: arr
-				    		});
-							$('.group-conbox:visible').append(html);
-							getCountMoney();
-						}
-					}
-				});
+				var ids = array.join(',');//将数组元素连接起来以构建一个字符串
+				// 获取选中的项目分组groupId 为全局变量
+				var group_id = groupId;
+				var url = '/groupadd';
+				var data = {'_token':token,'groupid':groupId,'projectids':ids};
+				$.post(url,data,function(data){
+					// console.log(msg)
+					layer.msg(data,{icon:1,time:1000});
+					window.location.href = "/projectgroup"
+				})
+				
 			});
 
 		})
