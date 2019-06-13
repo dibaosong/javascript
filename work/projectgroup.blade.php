@@ -197,6 +197,22 @@
 								<input id="groupYear" type="text" class="input-text" name="year">
 							</div>
 						</div>
+						<div class="row cl">
+							<label class="form-label col-xs-4 text-r"><span class="c-red">*</span>部门：</label>
+							<div class="formControls col-xs-6">
+								<div class="select-box">
+									<select id="bmSelect" class="select"></select>
+								</div>
+							</div>
+						</div>
+						<div class="row cl">
+							<label class="form-label col-xs-4 text-r"><span class="c-red">*</span>分管领导：</label>
+							<div class="formControls col-xs-6">
+								<div class="select-box">
+									<select id="fgldSelect" class="select"></select>
+								</div>
+							</div>
+						</div>
 					</form>
 				</div>
 				<div class="modal-footer">
@@ -262,6 +278,46 @@
 	<script>
 		$(function(){
 			var token = $("#token").val();
+
+			var userId = 3;
+			var group = {
+				//获取部门
+				getBm: function(){
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/position/project-index',
+						type: 'get',
+						data: {"userId": userId},
+						success: function(res){
+							if(res.ok){
+								var html = '';
+								$.each(res.data, function(i, t){
+									html += '<option value="'+ t.id +'">'+ t.name +'</option>';
+								});
+								$('#bmSelect').append(html);
+							}
+						}
+					})
+				},
+				//获取分管领导
+				getfgld: function(){
+					$.ajax({
+						url: 'https://www.sycalc.com.cn/user/get-secretary-list',
+						type: 'get',
+						success: function(res){
+							if(res.ok){
+								var html = '';
+								$.each(res.data, function(i, t){
+									html += '<option value="'+ t.id +'">'+ t.name +'</option>';
+								});
+								$('#fgldSelect').append(html);
+							}
+						}
+					})
+				}
+			};
+			group.getBm();
+			group.getfgld();
+
 			var groupId;
 			//统计当前分组的项目数量与金额
 			function getCountMoney(){
@@ -346,6 +402,8 @@
 
 			//创建分组
 			$('#createGroupBtn').on('click', function(){
+				$('#bmSelect option:first').prop('selected', true);
+				$('#fgldSelect option:first').prop('selected', true);
 				$('#groupModal').modal();
 			});
 			//创建分组-确定
@@ -370,10 +428,14 @@
 		            });
 					return;
 				};
+				var position = $('#bmSelect').val(),
+					user = $('#fgldSelect').val();
 				var data = {
 					"_token": token,
 					"group_name": groupName,
-					"year": groupYear
+					"year": groupYear,
+					"position": position,
+					"user": user
 				};
 				var url = "/addzu";
 				$.get(url,data,function(data){

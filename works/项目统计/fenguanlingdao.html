@@ -76,6 +76,7 @@
 				</div>
 			</div>
 		</section>
+		<div class="tc f15 table-nodata">没有发现数据哦~</div>
 	</article>
 	<script src="js/zepto.min.js"></script>
 	<script src="js/iscroll.js"></script>
@@ -108,7 +109,14 @@
 							$('.loading').removeClass('none');
 						},
 						success: function(res){
-							var lhtml = '<tr><td colspan="2">合计</td></tr>',
+							if(res.ok){
+								if(res.data.length == 0){
+									$('.loading').addClass('none');
+									$('.table-nodata').show();
+									return;
+								};
+
+								var lhtml = '<tr><td colspan="2">合计</td></tr>',
 								rhtml = '',
 								projectsTotal = 0,
 								total_moneyTotal = 0,
@@ -116,7 +124,7 @@
 								ratio_total_moneyTotal = 0,
 								ratio_projects_progressTotal = 0,
 								total_achievementsTotal = 0;
-							if(res.ok){
+
 								$.each(res.data, function(i, t){
 									var indexStr = '',
 										projects = t.projects || 0,
